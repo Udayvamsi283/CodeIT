@@ -1,0 +1,90 @@
+{
+  "id": "mss-with-swaps",
+  "title": "MSS WITH SWAPS",
+  "difficulty": "Medium",
+  "topics": [
+    "Arrays",
+    "Greedy",
+    "Sorting"
+  ],
+  "description": "Given an array a of length n and an integer k. You must perform the following operation exactly k times:\nchoose two indices i, j and swap(ai, aj).\n\nFind the maximum possible MSS (maximum subarray sum) after performing the above operation exactly k times.\n\nNote:\nSwapping the same pair again is allowed but useless (a double-swap cancels out). Therefore, performing exactly k swaps is equivalent to at most k useful swaps.",
+  "inputFormat": "• The first line contains an integer, n, denoting the size of array\n• The next line contains an integer, k, denoting the number of swaps.\n• Each line i of the n subsequent lines (where 0 <= i < n) contains an integer describing a[i].",
+  "outputFormat": "Print a single integer denoting the maximum possible MSS (maximum subarray sum).",
+  "constraints": [
+    "2 <= n <= 500",
+    "0 <= k <= n",
+    "-1000 <= a[i] <= 1000"
+  ],
+  "examples": [
+    {
+      "input": "3\n1\n1\n-5\n2",
+      "output": "3",
+      "explanation": "By swapping 1 and -5, we get a maximum subarray sum equal to 1+2=3."
+    },
+    {
+      "input": "3\n0\n5\n-1\n5",
+      "output": "2",
+      "explanation": "The maximum subarray sum is the sum of [2] which is equal to 2."
+    },
+    {
+      "input": "3\n0\n1\n-5\n2",
+      "output": "2",
+      "explanation": "The maximum subarray sum is the sum of [2] which is equal to 2."
+    }
+  ],
+  "hiddenTestCases": [
+    {
+      "input": "4\n1\n1\n2\n3\n4",
+      "output": "10"
+    },
+    {
+      "input": "5\n1\n10\n-5\n10\n-5\n10",
+      "output": "30"
+    },
+    {
+      "input": "9\n0\n-2\n1\n-3\n4\n-1\n2\n1\n-5\n4",
+      "output": "6"
+    },
+    {
+      "input": "6\n5\n-10\n-10\n-10\n5\n5\n5",
+      "output": "15"
+    },
+    {
+      "input": "4\n2\n-5\n-2\n-9\n1",
+      "output": "1"
+    },
+    {
+      "input": "6\n2\n10\n-20\n10\n-20\n10\n-20",
+      "output": "30"
+    },
+    {
+      "input": "2\n1\n-100\n100",
+      "output": "100"
+    },
+    {
+      "input": "5\n3\n7\n7\n7\n7\n7",
+      "output": "35"
+    },
+    {
+      "input": "5\n2\n1000\n-1000\n1000\n-1000\n1000",
+      "output": "3000"
+    },
+    {
+      "input": "7\n1\n5\n-10\n5\n-10\n5\n-10\n5",
+      "output": "15"
+    },
+    {
+      "input": "4\n0\n500\n-200\n300\n-800",
+      "output": "600"
+    },
+    {
+      "input": "6\n4\n-5\n-5\n-5\n10\n10\n10",
+      "output": "30"
+    }
+  ],
+  "starterCode": {
+    "python": "import sys\n\ndef solve():\n    # TODO: implement solution\n    pass\n\nif __name__ == \"__main__\":\n    solve()",
+    "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    // TODO: implement solution\n    return 0;\n}",
+    "java": "import java.io.*;\nimport java.util.*;\n\npublic class Main {\n    public static void main(String[] args) throws Exception {\n        // TODO: implement solution\n    }\n}"
+  }
+}

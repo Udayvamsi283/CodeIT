@@ -1,0 +1,91 @@
+{
+  "id": "food-stamps",
+  "title": "FOOD STAMPS",
+  "difficulty": "Easy",
+  "topics": [
+    "Binary Search",
+    "Greedy",
+    "Math"
+  ],
+  "description": "You want to buy food from a store.[cite: 1] You have a scoring system that uses a unit called taste points.[cite: 1] Each time you buy a type of food, you can measure its tastiness by the number of taste points you get from that food.[cite: 1]\n\nYou have N types of food.[cite: 1] You can buy any type any number of times, as long as the total number of meals does not exceed M.[cite: 1]\n\nHowever, you don't want to grow tired of a food if you buy it too often.[cite: 1] Therefore, you will get v[i] - d[i] * (ti - 1) taste points when you buy the i-th type of food for the ti-th time.[cite: 1]\n\nFind the maximum number of taste points you can achieve.[cite: 1]",
+  "inputFormat": "• The first line contains an integer, n, denoting the number of types of food you can buy.[cite: 1]\n• The next line contains an integer, m, denoting the maximum number of meals you can buy.[cite: 1]\n• Each line i of the n subsequent lines (where 0 <= i < n) contains an integer describing v[i].[cite: 1]\n• Each line i of the n subsequent lines (where 0 <= i < n) contains an integer describing d[i].[cite: 1]",
+  "outputFormat": "Print a single integer denoting the maximum number of taste points you can achieve.",
+  "constraints": [
+    "1 <= n <= 10^5[cite: 1]",
+    "1 <= m <= 10^9[cite: 1]",
+    "1 <= v[i] <= 10^9[cite: 1]",
+    "1 <= d[i] <= 10^9[cite: 1]"
+  ],
+  "examples": [
+    {
+      "input": "1\n1\n5\n2",
+      "output": "5",
+      "explanation": "You can only buy the first food once and get 5 taste points.[cite: 1]"
+    },
+    {
+      "input": "2\n2\n5\n7\n2\n4",
+      "output": "12",
+      "explanation": "You can buy 1 meal of the first type and 1 meal of the second type of food.[cite: 1] The answer therefore will be 5 + 7 = 12.[cite: 1]"
+    },
+    {
+      "input": "3\n5\n5\n7\n9\n2\n4\n6",
+      "output": "27",
+      "explanation": "you can buy the 2 meals of the first type and 2 meals of the second type and 1 meal of the third type and get 27 taste points as follows:[cite: 1]\nfirst type: 5 + (5-2)*1 = 8[cite: 1]\nsecond type: 7 + (7-4)*1 = 10[cite: 1]\nthird type: 9 = 9[cite: 1]\nanswer: 8 + 10 + 9 = 27[cite: 1]"
+    }
+  ],
+  "hiddenTestCases": [
+    {
+      "input": "1\n1\n1\n1",
+      "output": "1"
+    },
+    {
+      "input": "2\n10\n10\n10\n20\n20",
+      "output": "20"
+    },
+    {
+      "input": "1\n100\n10\n1",
+      "output": "55"
+    },
+    {
+      "input": "2\n6\n5\n6\n2\n2",
+      "output": "21"
+    },
+    {
+      "input": "2\n3\n5\n6\n2\n2",
+      "output": "15"
+    },
+    {
+      "input": "3\n4\n10\n10\n10\n3\n3\n3",
+      "output": "37"
+    },
+    {
+      "input": "1\n1000000000\n1000000000\n1",
+      "output": "500000000500000000"
+    },
+    {
+      "input": "3\n6\n20\n15\n10\n5\n2\n1",
+      "output": "84"
+    },
+    {
+      "input": "5\n3\n1\n2\n3\n4\n5\n1\n1\n1\n1\n1",
+      "output": "12"
+    },
+    {
+      "input": "2\n1000000\n100\n200\n10\n20",
+      "output": "1650"
+    },
+    {
+      "input": "5\n10\n100\n90\n80\n70\n60\n5\n4\n3\n2\n1",
+      "output": "866"
+    },
+    {
+      "input": "3\n2000000000\n1000000000\n1000000000\n1000000000\n10000\n10000\n10000",
+      "output": "150001500000000"
+    }
+  ],
+  "starterCode": {
+    "python": "import sys\n\ndef solve():\n    # TODO: implement solution\n    pass\n\nif __name__ == \"__main__\":\n    solve()",
+    "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    // TODO: implement solution\n    return 0;\n}",
+    "java": "import java.io.*;\nimport java.util.*;\n\npublic class Main {\n    public static void main(String[] args) throws Exception {\n        // TODO: implement solution\n    }\n}"
+  }
+}
