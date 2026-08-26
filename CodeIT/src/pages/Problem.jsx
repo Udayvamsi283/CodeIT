@@ -6,7 +6,8 @@ import ProblemDescription from '../components/ProblemDescription';
 import CodeEditor from '../components/CodeEditor';
 import TestResults from '../components/TestResults';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+const rawApiUrl = import.meta.env.VITE_API_URL || '';
+const API_BASE_URL = rawApiUrl.replace(/\/+$/, '');
 
 export default function Problem() {
   const { id } = useParams();
@@ -49,9 +50,7 @@ export default function Problem() {
       if (!isDragging || !containerRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
       const newRatio = (e.clientX - rect.left) / rect.width;
-      // Clamp between 30% (0.30) and 65% (0.65)
-      const clamped = Math.min(Math.max(newRatio, 0.30), 0.65);
-      setSplitRatio(clamped);
+      setSplitRatio(Math.min(Math.max(newRatio, 0.3), 0.65));
     };
 
     const handlePointerUp = () => {
@@ -76,21 +75,20 @@ export default function Problem() {
     };
   }, [isDragging]);
 
-  // Toggle reveal for individual hidden test cases (survives Run and Submit)
-  const handleToggleRevealHidden = (testIndex) => {
+  const toggleHiddenTestVisibility = (testIdx) => {
     if (!practiceMode) return;
     setRevealedHiddenTests((prev) => {
       const next = new Set(prev);
-      if (next.has(testIndex)) {
-        next.delete(testIndex);
+      if (next.has(testIdx)) {
+        next.delete(testIdx);
       } else {
-        next.add(testIndex);
+        next.add(testIdx);
       }
       return next;
     });
   };
 
-  // Run Code (3 public examples)
+  // Run Code (Only 3 public examples)
   const handleRunCode = async () => {
     if (!problem || isRunning || isSubmitting) return;
 
@@ -117,7 +115,7 @@ export default function Problem() {
       setRunResult({
         success: false,
         status: 'JUDGE_UNAVAILABLE',
-        message: 'Could not connect to the backend server. Make sure the backend is running on port 3000.'
+        message: 'Could not connect to the backend server. Please verify backend service availability or network connection.'
       });
     } finally {
       setIsRunning(false);
@@ -151,7 +149,7 @@ export default function Problem() {
       setSubmitResult({
         success: false,
         status: 'JUDGE_UNAVAILABLE',
-        message: 'Could not connect to the backend server. Make sure the backend is running on port 3000.'
+        message: 'Could not connect to the backend server. Please verify backend service availability or network connection.'
       });
     } finally {
       setIsSubmitting(false);

@@ -16,11 +16,32 @@ dotenv.config({ path: path.resolve(__dirname, '.env') });
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Security & Middleware
+// Parse configured frontend origins from environment (supports comma-separated list or wildcard)
+const configuredOrigins = process.env.FRONTEND_URL
+  ? process.env.FRONTEND_URL.split(',').map((o) => o.trim()).filter(Boolean)
+  : ['http://localhost:5173', 'http://localhost:3000'];
+
+// Production-ready CORS middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g. server-to-server, curl, health checks)
+    if (!origin) return callback(null, true);
+
+    // Allow wildcard if configured
+    if (configuredOrigins.includes('*') || configuredOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    // Always allow localhost in development
+    if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
+      return callback(null, true);
+    }
+
+    return callback(new Error(`CORS origin not allowed: ${origin}`));
+  },
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 
 app.use(express.json({ limit: '1mb' }));
@@ -37,17 +58,17 @@ app.use((req, res) => {
   });
 });
 
-// Global Error Handler
+// Global Production Error Handler (avoids leaking stack traces)
 app.use((err, req, res, next) => {
   console.error('Unhandled server error:', err.message);
   res.status(500).json({
     success: false,
-    error: 'Internal server error occurred.'
+    error: err.message.includes('CORS') ? err.message : 'Internal server error occurred.'
   });
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 CodeIT Backend Server running on http://localhost:${PORT}`);
+  console.log(`🚀 CodeIT Backend Server running on port ${PORT}`);
   console.log(`📡 Health check: http://localhost:${PORT}/api/health`);
 });
 

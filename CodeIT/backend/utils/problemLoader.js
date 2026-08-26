@@ -7,18 +7,24 @@ const __dirname = path.dirname(__filename);
 
 /**
  * Resolves the directory path containing problem JSON files.
- * Checks env variable or falls back to relative paths for local development / production.
+ * Checks PROBLEMS_DIR environment variable or falls back to robust relative paths
+ * for local development, monorepo roots, and cloud deployment container layouts.
  */
 function getProblemsDirectory() {
   if (process.env.PROBLEMS_DIR) {
-    return path.resolve(process.env.PROBLEMS_DIR);
+    const customPath = path.resolve(process.env.PROBLEMS_DIR);
+    if (fs.existsSync(customPath)) {
+      return customPath;
+    }
   }
 
-  // Common relative path locations
+  // Common relative path locations across different deployment and execution contexts
   const candidates = [
     path.resolve(__dirname, '../../src/problems'),
     path.resolve(process.cwd(), 'src/problems'),
     path.resolve(process.cwd(), '../src/problems'),
+    path.resolve(process.cwd(), 'CodeIT/src/problems'),
+    path.resolve(__dirname, '../../../CodeIT/src/problems'),
   ];
 
   for (const candidate of candidates) {
@@ -60,7 +66,7 @@ export function validateProblemStructure(problem) {
 
 /**
  * Loads a problem by its unique ID from the JSON files.
- * @param {string} id - Problem ID (e.g. 'infosys-001' or 'example-001')
+ * @param {string} id - Problem ID (e.g. 'food-stamps' or 'example-001')
  * @returns {Object|null} The parsed problem data or null if not found
  */
 export function getProblemById(id) {

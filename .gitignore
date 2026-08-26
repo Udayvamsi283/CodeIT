@@ -1,1 +1,42 @@
-/node_modules
+# Dependencies
+node_modules/
+CodeIT/node_modules/
+CodeIT/backend/node_modules/
+
+# Production build outputs
+dist/
+dist-ssr/
+CodeIT/dist/
+CodeIT/dist-ssr/
+
+# Environment files
+.env
+.env.*
+!.env.example
+*.local
+CodeIT/.env
+CodeIT/.env.*
+!CodeIT/.env.example
+CodeIT/backend/.env
+CodeIT/backend/.env.*
+!CodeIT/backend/.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# System & Editor files
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
