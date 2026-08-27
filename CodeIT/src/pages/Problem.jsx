@@ -23,8 +23,6 @@ export default function Problem() {
   const [submitResult, setSubmitResult] = useState(null);
 
   // Practice Mode state (Architecture ready for future Test Mode switching)
-  const [practiceMode, setPracticeMode] = useState(true);
-  const [revealedHiddenTests, setRevealedHiddenTests] = useState(new Set());
   const [practiceTestResults, setPracticeTestResults] = useState({});
   const [practiceRunningIndex, setPracticeRunningIndex] = useState(null);
 
@@ -74,19 +72,6 @@ export default function Problem() {
       document.body.style.cursor = '';
     };
   }, [isDragging]);
-
-  const toggleHiddenTestVisibility = (testIdx) => {
-    if (!practiceMode) return;
-    setRevealedHiddenTests((prev) => {
-      const next = new Set(prev);
-      if (next.has(testIdx)) {
-        next.delete(testIdx);
-      } else {
-        next.add(testIdx);
-      }
-      return next;
-    });
-  };
 
   // Run Code (Only 3 public examples)
   const handleRunCode = async () => {
@@ -247,7 +232,6 @@ export default function Problem() {
               setRunResult(null);
               setSubmitResult(null);
               setPracticeTestResults({});
-              setRevealedHiddenTests(new Set());
               prevProblem && navigate(`/problem/${prevProblem.id}`);
             }}
             disabled={!prevProblem}
@@ -263,7 +247,6 @@ export default function Problem() {
               setRunResult(null);
               setSubmitResult(null);
               setPracticeTestResults({});
-              setRevealedHiddenTests(new Set());
               nextProblem && navigate(`/problem/${nextProblem.id}`);
             }}
             disabled={!nextProblem}
@@ -329,15 +312,12 @@ export default function Problem() {
             <TestResults
               problem={problem}
               practiceHiddenCases={practiceHiddenCases}
-              practiceMode={practiceMode}
               isRunning={isRunning}
               isSubmitting={isSubmitting}
               practiceRunningIndex={practiceRunningIndex}
               runResult={runResult}
               submitResult={submitResult}
               practiceTestResults={practiceTestResults}
-              revealedHiddenTests={revealedHiddenTests}
-              onToggleRevealHidden={handleToggleRevealHidden}
               onRunCode={handleRunCode}
               onSubmitCode={handleSubmitCode}
               onRunPracticeTest={handleRunPracticeTest}
