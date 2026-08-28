@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { LogIn, Mail, Lock, AlertCircle, Loader2, Code2 } from 'lucide-react';
+import { LogIn, Mail, Lock, AlertCircle, Loader2, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import codeitLogo from '../assets/codeit-logo.png';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -10,10 +11,11 @@ export default function Login() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const from = location.state?.from?.pathname || '/problems';
+  const from = location.state?.from?.pathname || '/dashboard';
 
   // If already authenticated, redirect safely in useEffect (never during render)
   useEffect(() => {
@@ -47,12 +49,16 @@ export default function Login() {
     <div className="min-h-[calc(100vh-3.5rem)] bg-[#0d1117] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         {/* Brand Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-600/10 border border-blue-500/30 text-blue-400 mb-4 shadow-[0_0_20px_rgba(59,130,246,0.15)]">
-            <Code2 className="w-6 h-6" />
-          </div>
+        <div className="text-center mb-8 flex flex-col items-center">
+          <Link to="/" className="inline-block mb-4 hover:opacity-90 transition-opacity">
+            <img
+              src={codeitLogo}
+              alt="CodeIT"
+              className="h-12 sm:h-14 w-auto object-contain mx-auto"
+            />
+          </Link>
           <h1 className="text-2xl font-bold tracking-tight text-white">
-            Welcome back to CodeIT
+            Welcome back
           </h1>
           <p className="text-sm text-neutral-400 mt-1.5">
             Sign in to your account to continue coding
@@ -112,7 +118,7 @@ export default function Login() {
                 </div>
                 <input
                   id="login-password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   name="password"
                   autoComplete="current-password"
                   required
@@ -122,8 +128,20 @@ export default function Login() {
                     if (error) setError('');
                   }}
                   placeholder="••••••••"
-                  className="w-full pl-9 pr-3.5 py-2.5 bg-[#0d1117] border border-[#30363d] rounded-lg text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                  className="w-full pl-9 pr-10 py-2.5 bg-[#0d1117] border border-[#30363d] rounded-lg text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-500 hover:text-neutral-300 focus:outline-none cursor-pointer transition-colors"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
+                </button>
               </div>
             </div>
 

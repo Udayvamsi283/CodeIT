@@ -1,0 +1,93 @@
+{
+  "id": "part2-sample2",
+  "title": "Three-Operation Maximum Sum",
+  "difficulty": "Medium",
+  "topics": [
+    "Dynamic Programming",
+    "Math",
+    "Greedy"
+  ],
+  "description": "You are given three integers X, Y and Z and two arrays A and B both of length N. You are also given an integer sum which is initially equal to 0.\n\nYou have perform N operations and in each ith operation you must do only one of the following:\n1. Subtract B[i] from sum.\n2. Decrease both of X and Y by 1, then add A[i] * X * Y * Z to sum.\n3. Decrease both of Y and Z by 1, then add A[i] * X * Y * Z to sum.\n\nHowever, after each operation, X, Y and Z must all remain greater than or equal to 0.\n\nFind the maximum sum you can obtain after performing all operations. Since answer can be large, return it modulo 10^9+7.",
+  "inputFormat": "1. The first line contains an integer, N, denoting the number of operations.\n2. The next line contains an integer, X.\n3. The next line contains an integer, Y.\n4. The next line contains an integer, Z.\n5. Each line i of the N subsequent lines (where 1 <= i <= N) contains an integer describing A[i].\n6. Each line i of the N subsequent lines (where 1 <= i <= N) contains an integer describing B[i].",
+  "outputFormat": "Print a single integer denoting the maximum sum you can obtain after performing all operations modulo 10^9+7.",
+  "constraints": [
+    "1 <= N <= 10^3",
+    "1 <= X <= 10^3",
+    "1 <= Y <= 10^3",
+    "1 <= Z <= 10^3",
+    "1 <= A[i] <= 10^6",
+    "1 <= B[i] <= 10^9"
+  ],
+  "examples": [
+    {
+      "input": "2\n1\n2\n2\n0\n0\n10\n5",
+      "output": "0",
+      "explanation": "Here, N=2, X=1, Y=2, Z=2\nA=[0, 0]\nB=[10, 5]\nIt is given that in starting, sum=0\noperation 1:\nApply type 2 operation (i.e. Decrease both of X and Y by 1, then add A[1]*X*Y*Z to sum)\nX=0, Y=1, Z=2\nsum=sum + 0*0*1*2 = 0\noperation 2:\nApply type 3 operation (i.e. Decrease both of Y and Z by 1, then add A[2]*X*Y*Z to sum)\nX=0, Y=0, Z=1\nsum=sum + 0*0*0*1 = 0\nHence, answer is the final value of sum i.e. sum=0."
+    },
+    {
+      "input": "2\n10\n11\n11\n1\n10\n10\n0",
+      "output": "9990",
+      "explanation": "Here, N=2, X=10, Y=11, Z=11\nA=[1, 10]\nB=[10, 0]\nIt is given that in starting, sum=0\noperation 1:\nApply type 1 operation (i.e. Subtract B[1] from sum.)\nsum=sum - 10 = -10\noperation 2:\nApply type 3 operation (i.e. Decrease both of Y and Z by 1, then add A[2]*X*Y*Z to sum)\nX=10, Y=10, Z=10\nsum=sum + 10*10*10*10 = 9990\nHence, answer is the final value of sum i.e. sum=9990."
+    },
+    {
+      "input": "3\n3\n3\n3\n1\n2\n3\n1\n2\n3",
+      "output": "35",
+      "explanation": "Here, N=3, X=3, Y=3, Z=3\nA=[1, 2, 3]\nB=[1, 2, 3]\nIt is given that in starting, sum=0\noperation 1:\nApply type 1 operation (i.e. Subtract B[1] from sum.)\nsum=sum - 1 = -1\noperation 2:\nApply type 2 operation (i.e. Decrease both of X and Y by 1, then add A[2]*X*Y*Z to sum)\nX=2, Y=2, Z=3\nsum=sum + 2*2*2*3 = 23\noperation 3:\nApply type 3 operation (i.e. Decrease both of Y and Z by 1, then add A[3]*X*Y*Z to sum)\nX=2, Y=1, Z=2\nsum=sum + 3*2*1*2 = 35\nHence, answer is the final value of sum i.e. sum=35."
+    }
+  ],
+  "hiddenTestCases": [
+    {
+      "input": "1\n1\n1\n1\n10\n100",
+      "output": "0"
+    },
+    {
+      "input": "1\n2\n2\n2\n10\n10",
+      "output": "20"
+    },
+    {
+      "input": "2\n2\n2\n2\n10\n10\n0\n0",
+      "output": "20"
+    },
+    {
+      "input": "2\n3\n3\n3\n1\n1\n10\n10",
+      "output": "15"
+    },
+    {
+      "input": "2\n3\n3\n3\n2\n5\n100\n100",
+      "output": "44"
+    },
+    {
+      "input": "2\n2\n3\n4\n1\n1\n0\n0",
+      "output": "16"
+    },
+    {
+      "input": "3\n3\n3\n3\n0\n0\n0\n0\n0\n0",
+      "output": "0"
+    },
+    {
+      "input": "1\n1\n1\n1\n100\n1",
+      "output": "0"
+    },
+    {
+      "input": "2\n2\n2\n1\n5\n5\n0\n0",
+      "output": "5"
+    },
+    {
+      "input": "3\n3\n3\n3\n1\n2\n3\n100\n100\n100",
+      "output": "20"
+    },
+    {
+      "input": "2\n4\n4\n4\n10\n1\n0\n0",
+      "output": "378"
+    },
+    {
+      "input": "1\n10\n10\n10\n1\n100",
+      "output": "810"
+    }
+  ],
+  "starterCode": {
+    "python": "import sys\n\ndef solve():\n    # TODO: implement solution\n    pass\n\nif __name__ == \"__main__\":\n    solve()",
+    "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    // TODO: implement solution\n    return 0;\n}",
+    "java": "import java.io.*;\nimport java.util.*;\n\npublic class Main {\n    public static void main(String[] args) throws Exception {\n        // TODO: implement solution\n    }\n}"
+  }
+}

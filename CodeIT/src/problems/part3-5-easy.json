@@ -1,0 +1,90 @@
+{
+  "id": "part3-5-easy",
+  "title": "General Ali's Invasion",
+  "difficulty": "Easy",
+  "topics": [
+    "Graphs",
+    "Breadth-First Search",
+    "Matrix"
+  ],
+  "description": "General Ali has initiated an invasion in the shape of an N x M grid behind enemy lines given by a 2D array Q.\n\nThe grid consists of cells represented by the following characters:\n1. '*': Represents a block cell that cannot be visited.\n2. 'A': Represents a cell that has been invaded by General Ali's army.\n3. 'E': Represents a cell that contains the enemy's army.\n\nGeneral Ali's invasion progresses as follows: At each second, any cell marked 'E' that shares a side with a cell marked 'A' is invaded by General Ali's army.\n\nFind the minimum time it will take for General Ali's army to invade all enemy cells ('E') in the grid. If it's not possible to invade all enemy cells, return -1.",
+  "inputFormat": "The first line contains an integer, N, denoting the number of elements in Q.\nThe next line contains an integer, M, denoting the given integer.\nEach line i of the N subsequent lines (where 0 <= i < N) contains a string describing Q[i].",
+  "outputFormat": "Print a single integer denoting the minimum time it will take for General Ali's army to invade all enemy cells, or -1 if it is not possible.",
+  "constraints": [
+    "1 <= N <= 10^3",
+    "1 <= M <= 10^3",
+    "1 <= len(Q[i]) <= 10^5"
+  ],
+  "examples": [
+    {
+      "input": "2\n2\nAE\nEE",
+      "output": "2",
+      "explanation": "Given N=2, M=2, Q=[[\"AE\"], [\"EE\"]].\nAfter 1 second the enemy's country will be like Q=[[\"AA\"], [\"AE\"]].\nAfter 2 seconds the enemy's country will be like Q=[[\"AA\"], [\"AA\"]].\nHence, the answer for this case is equal to 2."
+    },
+    {
+      "input": "3\n2\nAE\n*E\nEE",
+      "output": "4",
+      "explanation": "Given N=3, M=2, Q=[[\"AE\"], [\"*E\"], [\"EE\"]].\nAfter 1 second the enemy's country will be like Q=[[\"AA\"], [\"AE\"], [\"EE\"]].\nAfter 2 seconds the enemy's country will be like Q=[[\"AA\"], [\"AA\"], [\"AE\"]].\nAfter 3 seconds the enemy's country will be like Q=[[\"AA\"], [\"AA\"], [\"AA\"]].\nHence, the answer for this case is equal to 4."
+    },
+    {
+      "input": "3\n2\nAE\n**\nEE",
+      "output": "-1",
+      "explanation": "Given N=3, M=2, Q=[[\"AE\"], [\"**\"], [\"EE\"]].\nAfter 1 second the enemy's country will be like Q=[[\"AA\"], [\"**\"], [\"EE\"]].\nAfter that General Ali's army can't continue the invasion because of the block cells so the answer is -1."
+    }
+  ],
+  "hiddenTestCases": [
+    {
+      "input": "2\n2\nAA\nAA",
+      "output": "0"
+    },
+    {
+      "input": "2\n2\nEE\nEE",
+      "output": "-1"
+    },
+    {
+      "input": "1\n5\nAE*EE",
+      "output": "-1"
+    },
+    {
+      "input": "1\n5\nEEAEE",
+      "output": "2"
+    },
+    {
+      "input": "3\n4\nAAA*\nE*EE\nEEEE",
+      "output": "5"
+    },
+    {
+      "input": "3\n3\nAEE\n**E\nEEE",
+      "output": "6"
+    },
+    {
+      "input": "3\n3\nAEA\nEEE\nAEA",
+      "output": "2"
+    },
+    {
+      "input": "3\n3\n***\n*E*\n*A*",
+      "output": "-1"
+    },
+    {
+      "input": "3\n3\nAAA\nAEA\nAAA",
+      "output": "1"
+    },
+    {
+      "input": "4\n4\nE**A\nE**E\nE**E\nEEEE",
+      "output": "-1"
+    },
+    {
+      "input": "5\n5\nAEEEE\n****E\nEEEEE\nE****\nEEEEE",
+      "output": "16"
+    },
+    {
+      "input": "3\n4\nEEEE\nEAEE\nEEEE",
+      "output": "3"
+    }
+  ],
+  "starterCode": {
+    "python": "import sys\n\ndef solve():\n    # TODO: implement solution\n    pass\n\nif __name__ == \"__main__\":\n    solve()",
+    "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    // TODO: implement solution\n    return 0;\n}",
+    "java": "import java.io.*;\nimport java.util.*;\n\npublic class Main {\n    public static void main(String[] args) throws Exception {\n        // TODO: implement solution\n    }\n}"
+  }
+}

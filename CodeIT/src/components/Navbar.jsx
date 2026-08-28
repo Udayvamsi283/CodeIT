@@ -1,14 +1,25 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Code2, Info, X, Sparkles, BookOpen, LogIn, LogOut, UserPlus, User } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Info, X, Sparkles, BookOpen, LogIn, LogOut, UserPlus, User, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import codeitLogo from '../assets/codeit-logo.png';
+import codeitIcon from '../assets/codeit-icon.png';
 
 export default function Navbar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [showAboutModal, setShowAboutModal] = useState(false);
   const { user, isAuthenticated, loading, logout } = useAuth();
 
+  const isDashboardActive = location.pathname === '/dashboard';
   const isProblemsActive = location.pathname.startsWith('/problems') || location.pathname.startsWith('/problem');
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/', { replace: true });
+  };
+
+  const brandDestination = isAuthenticated ? '/dashboard' : '/';
 
   return (
     <>
@@ -17,38 +28,48 @@ export default function Navbar() {
           {/* Brand Left */}
           <div className="flex items-center gap-6">
             <Link
-              to="/problems"
-              className="group flex items-center gap-2.5 text-white font-semibold text-lg tracking-tight hover:opacity-90 transition-opacity"
+              to={brandDestination}
+              className="group flex items-center hover:opacity-90 transition-opacity"
             >
-              <div className="w-8 h-8 rounded-lg bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 group-hover:bg-blue-600/20 group-hover:border-blue-500/50 transition-all shadow-[0_0_12px_rgba(59,130,246,0.15)]">
-                <Code2 className="w-4 h-4" />
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="bg-gradient-to-r from-white via-neutral-200 to-neutral-400 bg-clip-text text-transparent font-bold">
-                  CodeIT
-                </span>
-                <span className="hidden sm:inline-block text-[11px] font-mono px-2 py-0.5 rounded bg-neutral-800/80 border border-neutral-700/60 text-neutral-400 font-normal">
-                  Coding Practice
-                </span>
-              </div>
+              <img
+                src={codeitLogo}
+                alt="CodeIT"
+                className="h-8 sm:h-9 w-auto object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]"
+              />
             </Link>
 
-            {/* Navigation links */}
-            <nav className="flex items-center gap-1">
-              <Link
-                to="/problems"
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  isProblemsActive
-                    ? 'text-white bg-[#21262d] border border-[#30363d]'
-                    : 'text-neutral-400 hover:text-white hover:bg-neutral-800/50'
-                }`}
-              >
-                <span className="flex items-center gap-1.5">
-                  <BookOpen className="w-3.5 h-3.5" />
-                  Problems
-                </span>
-              </Link>
-            </nav>
+            {/* Navigation links - only shown when authenticated */}
+            {isAuthenticated && (
+              <nav className="flex items-center gap-1">
+                <Link
+                  to="/dashboard"
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                    isDashboardActive
+                      ? 'text-white bg-[#21262d] border border-[#30363d]'
+                      : 'text-neutral-400 hover:text-white hover:bg-neutral-800/50'
+                  }`}
+                >
+                  <span className="flex items-center gap-1.5">
+                    <LayoutDashboard className="w-3.5 h-3.5" />
+                    Dashboard
+                  </span>
+                </Link>
+
+                <Link
+                  to="/problems"
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                    isProblemsActive
+                      ? 'text-white bg-[#21262d] border border-[#30363d]'
+                      : 'text-neutral-400 hover:text-white hover:bg-neutral-800/50'
+                  }`}
+                >
+                  <span className="flex items-center gap-1.5">
+                    <BookOpen className="w-3.5 h-3.5" />
+                    Problems
+                  </span>
+                </Link>
+              </nav>
+            )}
           </div>
 
           {/* Nav Right */}
@@ -75,7 +96,7 @@ export default function Navbar() {
                       </span>
                     </div>
                     <button
-                      onClick={logout}
+                      onClick={handleLogout}
                       className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-neutral-300 hover:text-white bg-neutral-800/50 hover:bg-neutral-800 border border-neutral-700/60 rounded-md transition-all cursor-pointer"
                       title="Log out"
                     >
@@ -114,9 +135,11 @@ export default function Navbar() {
             {/* Header */}
             <div className="flex items-start justify-between pb-4 border-b border-[#21262d]">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
-                  <Code2 className="w-5 h-5" />
-                </div>
+                <img
+                  src={codeitIcon}
+                  alt="CodeIT Icon"
+                  className="w-9 h-9 object-contain rounded-lg shrink-0"
+                />
                 <div>
                   <h3 className="text-base font-semibold text-white">About CodeIT</h3>
                   <p className="text-xs text-neutral-400">Personal Coding Practice Platform</p>

@@ -1,0 +1,88 @@
+{
+  "id": "part3-4-easy",
+  "title": "General Ali's Army Reduction",
+  "difficulty": "Easy",
+  "topics": [
+    "Dynamic Programming",
+    "Greedy",
+    "Math"
+  ],
+  "description": "General Ali has devised a strategic game to reduce an enemy army of N soldiers to just 1 soldier using a minimal number of moves.\n\nThe game allows the following three types of moves:\n1. Reduce the enemy army by 1 soldier.\n2. Reduce the enemy army by half of its current soldiers, rounding down to the nearest integer.\n3. Reduce the enemy army by two-thirds of its current soldiers, rounding down to the nearest integer.\n\nEach move must ensure that the resulting number of soldiers is an integer.\n\nFind the minimum number of moves required to reduce enemy army to just 1 soldier.",
+  "inputFormat": "The first line contains an integer, N, denoting the number of enemy soldiers.",
+  "outputFormat": "Print a single integer denoting the minimum number of moves required to reduce enemy army to just 1 soldier.",
+  "constraints": [
+    "1 <= N <= 10^9"
+  ],
+  "examples": [
+    {
+      "input": "5",
+      "output": "3",
+      "explanation": "Given N=5\nMove 1: Reduce by 1 soldier (5->4)\nMove 2: Reduce by half (4->2)\nMove 3: Reduce by half (2->1)\nHence, the answer for this case is equal to 3."
+    },
+    {
+      "input": "1",
+      "output": "0",
+      "explanation": "Given N=1\nThere is only 1 soldier already, so no moves are required to reduce the enemy soldiers to 1.\nTherefore, the minimum number of moves needed is 0."
+    },
+    {
+      "input": "6",
+      "output": "2",
+      "explanation": "Given N=6.\nMove 1: Reduce by half (6->3)\nMove 2: Reduce by half (3->1)\nHence, the answer for this case is equal to 2."
+    }
+  ],
+  "hiddenTestCases": [
+    {
+      "input": "2",
+      "output": "1"
+    },
+    {
+      "input": "3",
+      "output": "1"
+    },
+    {
+      "input": "7",
+      "output": "3"
+    },
+    {
+      "input": "10",
+      "output": "3"
+    },
+    {
+      "input": "15",
+      "output": "4"
+    },
+    {
+      "input": "32",
+      "output": "5"
+    },
+    {
+      "input": "100",
+      "output": "7"
+    },
+    {
+      "input": "1024",
+      "output": "10"
+    },
+    {
+      "input": "59049",
+      "output": "10"
+    },
+    {
+      "input": "387420490",
+      "output": "19"
+    },
+    {
+      "input": "387420489",
+      "output": "18"
+    },
+    {
+      "input": "774840978",
+      "output": "19"
+    }
+  ],
+  "starterCode": {
+    "python": "import sys\n\ndef solve():\n    # TODO: implement solution\n    pass\n\nif __name__ == \"__main__\":\n    solve()",
+    "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    // TODO: implement solution\n    return 0;\n}",
+    "java": "import java.io.*;\nimport java.util.*;\n\npublic class Main {\n    public static void main(String[] args) throws Exception {\n        // TODO: implement solution\n    }\n}"
+  }
+}

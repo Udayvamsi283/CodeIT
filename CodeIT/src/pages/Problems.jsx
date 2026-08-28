@@ -251,14 +251,14 @@ export default function Problems() {
         {/* Problems List */}
         <div className="space-y-3">
           {/* Table Header row */}
-          <div className="hidden md:flex items-center justify-between px-4 py-2 text-xs font-semibold text-neutral-500 uppercase tracking-wider border-b border-[#21262d]/60">
-            <div className="flex items-center gap-3.5">
-              <span className="w-14">Status #</span>
-              <span>Title</span>
+          <div className="hidden sm:flex items-center justify-between px-4 py-2 text-xs font-semibold text-neutral-500 uppercase tracking-wider border-b border-[#21262d]/60">
+            <div className="flex items-center gap-3">
+              <span className="w-12 text-left">Status</span>
+              <span>Problem</span>
             </div>
-            <div className="flex items-center gap-8">
-              <span className="w-20 text-center">Difficulty</span>
-              <span className="w-48 text-right pr-6">Topics</span>
+            <div className="flex items-center gap-6 pr-2">
+              <span className="w-16 text-center">Difficulty</span>
+              <span className="w-4"></span>
             </div>
           </div>
 

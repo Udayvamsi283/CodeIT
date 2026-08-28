@@ -35,3 +35,104 @@
 pre, code, kbd, samp {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
+
+/* Atmospheric Developer Theme Animations */
+@keyframes float-orb-1 {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  50% {
+    transform: translate(25px, -20px) scale(1.08);
+  }
+}
+
+@keyframes float-orb-2 {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  50% {
+    transform: translate(-30px, 25px) scale(0.95);
+  }
+}
+
+@keyframes float-token-1 {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+}
+
+@keyframes float-token-2 {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(-1.5deg);
+  }
+}
+
+@keyframes loader-progress {
+  0% {
+    width: 0%;
+  }
+  40% {
+    width: 55%;
+  }
+  80% {
+    width: 85%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+.animate-float-orb-1 {
+  animation: float-orb-1 12s ease-in-out infinite;
+}
+
+.animate-float-orb-2 {
+  animation: float-orb-2 15s ease-in-out infinite;
+}
+
+.animate-float-token-1 {
+  animation: float-token-1 6s ease-in-out infinite;
+}
+
+.animate-float-token-2 {
+  animation: float-token-2 7.5s ease-in-out infinite;
+}
+
+.animate-loader-progress {
+  animation: loader-progress 1.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .animate-float-orb-1,
+  .animate-float-orb-2,
+  .animate-float-token-1,
+  .animate-float-token-2,
+  .animate-pulse-glow {
+    animation: none !important;
+  }
+  .animate-loader-progress {
+    animation-duration: 0.01ms !important;
+  }
+}

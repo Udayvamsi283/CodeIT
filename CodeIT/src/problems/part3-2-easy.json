@@ -1,0 +1,90 @@
+{
+  "id": "part3-2-easy",
+  "title": "Maximum Sum Subarray with ≤ K Distinct Elements",
+  "difficulty": "Easy",
+  "topics": [
+    "Arrays",
+    "Sliding Window",
+    "Two Pointers"
+  ],
+  "description": "You are given an array A of length N and an integer k.\n\nIt is given that a subarray from l to r is considered good, if the number of distinct elements in that subarray doesn't exceed k. Additionally, an empty subarray is also a good subarray and its sum is considered to be zero.\n\nFind the maximum sum of a good subarray.",
+  "inputFormat": "The first line contains an integer, N, denoting the number of elements in A.\nThe next line contains an integer, k, denoting the limit on the distinct elements.\nEach line i of the N subsequent lines (where 0 <= i < N) contains an integer describing A[i].",
+  "outputFormat": "Print a single integer denoting the maximum sum of a good subarray.",
+  "constraints": [
+    "1 <= N <= 10^5",
+    "1 <= k <= N",
+    "-10^5 <= A[i] <= 10^5"
+  ],
+  "examples": [
+    {
+      "input": "11\n2\n1\n2\n2\n3\n2\n3\n5\n1\n2\n1\n1",
+      "output": "12",
+      "explanation": "Here, N=11, k=2\nA=[1,2,2,3,2,3,5,1,2,1,1]\nWe can select the subarray = [2,2,3,2,3]\nIt is a good subarray because it contains at most k distinct elements.\nIts sum = 2+2+3+2+3=12\nSo, our answer is 12."
+    },
+    {
+      "input": "3\n1\n-1\n-2\n-3",
+      "output": "0",
+      "explanation": "Here, N=3, k=1\nA=[-1,-2,-3]\nIt is optimal to choose empty subarray.\nSo, our answer is 0."
+    },
+    {
+      "input": "5\n5\n-1\n1\n3\n2\n-1",
+      "output": "6",
+      "explanation": "Here, N=5, k=5\nA=[-1,1,3,2,-1]\nIt is optimal to choose the subarray = [1,3,2].\nIts sum = 1+3+2=6.\nHence, our answer is 6."
+    }
+  ],
+  "hiddenTestCases": [
+    {
+      "input": "4\n1\n2\n2\n2\n3",
+      "output": "6"
+    },
+    {
+      "input": "5\n2\n10\n-5\n10\n10\n20",
+      "output": "40"
+    },
+    {
+      "input": "5\n1\n5\n5\n5\n5\n5",
+      "output": "25"
+    },
+    {
+      "input": "6\n3\n-10\n5\n5\n-1\n5\n-10",
+      "output": "14"
+    },
+    {
+      "input": "5\n5\n1\n-3\n4\n-1\n2",
+      "output": "5"
+    },
+    {
+      "input": "6\n2\n1\n2\n3\n4\n5\n6",
+      "output": "11"
+    },
+    {
+      "input": "8\n2\n1\n2\n1\n2\n3\n4\n3\n4",
+      "output": "14"
+    },
+    {
+      "input": "5\n3\n-10\n-20\n-30\n-40\n-50",
+      "output": "0"
+    },
+    {
+      "input": "5\n2\n0\n0\n0\n0\n-1",
+      "output": "0"
+    },
+    {
+      "input": "3\n1\n10\n-1\n10",
+      "output": "10"
+    },
+    {
+      "input": "4\n3\n1\n2\n3\n4",
+      "output": "9"
+    },
+    {
+      "input": "5\n2\n1\n0\n2\n0\n3",
+      "output": "3"
+    }
+  ],
+  "starterCode": {
+    "python": "import sys\n\ndef solve():\n    # TODO: implement solution\n    pass\n\nif __name__ == \"__main__\":\n    solve()",
+    "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    // TODO: implement solution\n    return 0;\n}",
+    "java": "import java.io.*;\nimport java.util.*;\n\npublic class Main {\n    public static void main(String[] args) throws Exception {\n        // TODO: implement solution\n    }\n}"
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "id": "part3-1-easy",
+  "title": "Range Transformation Queries",
+  "difficulty": "Easy",
+  "topics": [
+    "Arrays",
+    "Math",
+    "Queries"
+  ],
+  "description": "You're given an array A of n integers and q queries.\n\nEach query can be one of the following two types:\nType 1 Query: (1, l, r) - Replace A[i] with (i - l + 1) * A[l] for each index i, where l <= i <= r.\nType 2 Query: (2, l, r) - Calculate the sum of the elements in A from index l to index r.\n\nFind the sum of answers to all type 2 queries. Since answer can be large, return it modulo 10^9+7.\n\nNote:\nArrays are 0-indexed.",
+  "inputFormat": "The first line contains an integer, n, denoting the number of elements in A.\nEach line i of the n subsequent lines (where 0 <= i < n) contains an integer describing A[i].\nThe next line contains an integer, q, denoting the number of rows in queries.\nEach line i of the q subsequent lines (where 0 <= i < q) contains 3 space separated integers each describing the row queries[i]. The 3 space separated integers denote the value of either (1, l, r) or (2, l, r) for the i-th query.",
+  "outputFormat": "Print a single integer denoting the sum of answers to all type 2 queries modulo 10^9+7.",
+  "constraints": [
+    "1 <= n <= 10^5",
+    "1 <= A[i] <= 10^5",
+    "1 <= q <= 10^5",
+    "0 <= queries[i][j] <= 10^5"
+  ],
+  "examples": [
+    {
+      "input": "7\n1\n4\n5\n1\n6\n7\n8\n5\n1 1 6\n1 1 5\n2 5 5\n2 3 4\n2 3 3",
+      "output": "60",
+      "explanation": "Here, n=7, A=[1, 4, 5, 1, 6, 7, 8], q=5\nqueries = [[1, 1, 6], [1, 1, 5], [2, 5, 5], [2, 3, 4], [2, 3, 3]]\nfor query 1 -> (1, 1, 6): Applying the operation on subarray from index 1 to 6, A becomes A=[1, 4, 8, 12, 16, 20, 24]\nfor query 2 -> (1, 1, 5): Applying the operation on subarray from index 1 to 5, A becomes A=[1, 4, 8, 12, 16, 20, 24]\nfor query 3 -> (2, 5, 5): calculate sum of array from index 5 to 5 -> sum = A[5] = 20\nfor query 4 -> (2, 3, 4): calculate sum of array from index 3 to 4 -> sum = A[3] + A[4] = 28\nfor query 5 -> (2, 3, 3): calculate sum of array from index 3 to 3 -> sum = A[3] = 12\nHence, answer is 20 + 28 + 12 = 60"
+    },
+    {
+      "input": "7\n3\n7\n4\n2\n5\n3\n7\n5\n1 0 4\n2 0 1\n1 3 6\n2 3 3\n2 0 5",
+      "output": "111",
+      "explanation": "Here, n=7, A=[3, 7, 4, 2, 5, 3, 7], q=5\nqueries = [[1, 0, 4], [2, 0, 1], [1, 3, 6], [2, 3, 3], [2, 0, 5]]\nfor query 1 -> (1, 0, 4): A becomes [3, 6, 9, 12, 15, 3, 7]\nfor query 2 -> (2, 0, 1): sum = A[0] + A[1] = 9\nfor query 3 -> (1, 3, 6): A becomes [3, 6, 9, 12, 24, 36, 48]\nfor query 4 -> (2, 3, 3): sum = A[3] = 12\nfor query 5 -> (2, 0, 5): sum = A[0] + A[1] + A[2] + A[3] + A[4] + A[5] = 90\nHence, answer is 9 + 12 + 90 = 111"
+    },
+    {
+      "input": "7\n1\n8\n6\n10\n5\n6\n9\n5\n2 0 3\n1 2 3\n1 0 6\n2 1 4\n2 6 6",
+      "output": "46",
+      "explanation": "Here, n=7, A=[1, 8, 6, 10, 5, 6, 9], q=5\nqueries = [[2, 0, 3], [1, 2, 3], [1, 0, 6], [2, 1, 4], [2, 6, 6]]\nfor query 1 -> (2, 0, 3): sum = 1+8+6+10 = 25\nfor query 2 -> (1, 2, 3): A becomes [1, 8, 6, 12, 5, 6, 9]\nfor query 3 -> (1, 0, 6): A becomes [1, 2, 3, 4, 5, 6, 7]\nfor query 4 -> (2, 1, 4): sum = 2+3+4+5 = 14\nfor query 5 -> (2, 6, 6): sum = 7\nHence, answer is 25 + 14 + 7 = 46"
+    }
+  ],
+  "hiddenTestCases": [
+    {
+      "input": "1\n5\n2\n1 0 0\n2 0 0",
+      "output": "5"
+    },
+    {
+      "input": "3\n1\n2\n3\n3\n1 0 2\n1 1 2\n2 0 2",
+      "output": "7"
+    },
+    {
+      "input": "4\n10\n20\n30\n40\n4\n1 1 3\n2 0 3\n1 2 3\n2 0 3",
+      "output": "280"
+    },
+    {
+      "input": "5\n1\n1\n1\n1\n1\n3\n1 0 4\n1 1 4\n2 0 4",
+      "output": "21"
+    },
+    {
+      "input": "3\n5\n5\n5\n4\n2 0 2\n1 0 1\n2 0 2\n1 1 2\n2 0 2",
+      "output": "70"
+    },
+    {
+      "input": "4\n2\n3\n4\n5\n3\n1 0 0\n1 1 1\n2 0 3",
+      "output": "14"
+    },
+    {
+      "input": "2\n100000\n100000\n2\n1 0 1\n2 0 1",
+      "output": "300000"
+    },
+    {
+      "input": "5\n2\n2\n2\n2\n2\n3\n1 2 4\n2 1 3\n2 3 4",
+      "output": "18"
+    },
+    {
+      "input": "4\n2\n1\n1\n1\n4\n1 0 3\n1 1 3\n1 2 3\n2 0 3",
+      "output": "30"
+    },
+    {
+      "input": "4\n1\n2\n3\n4\n2\n2 0 1\n2 2 3",
+      "output": "10"
+    },
+    {
+      "input": "3\n10\n20\n30\n3\n1 2 2\n2 1 2\n2 0 0",
+      "output": "60"
+    },
+    {
+      "input": "5\n1\n2\n3\n4\n5\n4\n1 0 4\n1 1 3\n1 2 2\n2 0 4",
+      "output": "18"
+    }
+  ],
+  "starterCode": {
+    "python": "import sys\n\ndef solve():\n    # TODO: implement solution\n    pass\n\nif __name__ == \"__main__\":\n    solve()",
+    "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    // TODO: implement solution\n    return 0;\n}",
+    "java": "import java.io.*;\nimport java.util.*;\n\npublic class Main {\n    public static void main(String[] args) throws Exception {\n        // TODO: implement solution\n    }\n}"
+  }
+}

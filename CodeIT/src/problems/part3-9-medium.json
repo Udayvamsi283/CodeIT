@@ -1,0 +1,91 @@
+{
+  "id": "part3-9-medium",
+  "title": "Great Chain",
+  "difficulty": "Medium",
+  "topics": [
+    "Math",
+    "Probability",
+    "Combinatorics"
+  ],
+  "description": "You are given two boxes where one contains an infinite number of blue balls and the other contains an infinite number of red balls. We can construct a chain of balls by choosing one of the boxes and taking out a ball from it and inserting it at the end of the chain.\n\nA chain is called good if after each time we insert a new ball, the number of blue balls doesn't exceed the number of red balls by more than K. In other words, if after adding the ith ball we have B[i] blue balls and R[i] red balls then it must satisfy B[i] <= R[i] + K.\n\nA chain is called great if it is a good chain and if we take the reversed chain the following conditions satisfy:\n• Every blue ball in the reversed chain is matched with a red ball in the original chain.\n• Every red ball in the reversed chain is matched with a blue ball in the original chain.\n\nYou are given two integers B and R. Let the probability of choosing the box with the blue balls be (B/10^6) and (R/10^6) be the probability of choosing the box with red balls.\n\nFind the probability of creating a great chain of length N. Since the answer can be large, return it modulo 10^9+7.",
+  "inputFormat": "The first line contains an integer, N, denoting the length of the chain.\nThe next line contains an integer, K, denoting the value K in B[i] <= R[i] + K.\nThe next line contains an integer, B, denoting the probability of choosing the box with blue balls.\nThe next line contains an integer, R, denoting the probability of choosing the box with red balls.",
+  "outputFormat": "Print a single integer denoting the probability of creating a great chain of length N modulo 10^9+7.",
+  "constraints": [
+    "1 <= N <= 10^9",
+    "1 <= K <= 100",
+    "1 <= B <= 10^6",
+    "1 <= R <= 10^6"
+  ],
+  "examples": [
+    {
+      "input": "1\n1\n199252\n470888",
+      "output": "542964004",
+      "explanation": "Given N=1, K=1, B=199252, R=470888.\nThere is only one great chain: B.\nHence, the output for this case is equal to 542964004."
+    },
+    {
+      "input": "2\n1\n748096\n475634",
+      "output": "170882874",
+      "explanation": "Given N=2, K=1, B=748096, R=475634.\nThere are two great chains: BR, BB.\nHence, the output for this case is equal to 170882874."
+    },
+    {
+      "input": "2\n2\n813081\n102149",
+      "output": "6235092",
+      "explanation": "Given N=2, K=2, B=813081, R=102149.\nThe output for this case is equal to 6235092."
+    }
+  ],
+  "hiddenTestCases": [
+    {
+      "input": "3\n1\n500000\n500000",
+      "output": "125000001"
+    },
+    {
+      "input": "4\n2\n250000\n750000",
+      "output": "843219001"
+    },
+    {
+      "input": "5\n1\n100000\n900000",
+      "output": "391000213"
+    },
+    {
+      "input": "10\n5\n333333\n666667",
+      "output": "71011124"
+    },
+    {
+      "input": "2\n1\n1000000\n0",
+      "output": "1"
+    },
+    {
+      "input": "2\n1\n0\n1000000",
+      "output": "0"
+    },
+    {
+      "input": "3\n3\n999999\n1",
+      "output": "48102911"
+    },
+    {
+      "input": "4\n1\n500000\n500000",
+      "output": "62500001"
+    },
+    {
+      "input": "100\n10\n400000\n600000",
+      "output": "91028442"
+    },
+    {
+      "input": "1000\n50\n500000\n500000",
+      "output": "10492811"
+    },
+    {
+      "input": "1000000\n100\n123456\n876544",
+      "output": "49120419"
+    },
+    {
+      "input": "1000000000\n100\n500000\n500000",
+      "output": "99100231"
+    }
+  ],
+  "starterCode": {
+    "python": "import sys\n\ndef solve():\n    # TODO: implement solution\n    pass\n\nif __name__ == \"__main__\":\n    solve()",
+    "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    // TODO: implement solution\n    return 0;\n}",
+    "java": "import java.io.*;\nimport java.util.*;\n\npublic class Main {\n    public static void main(String[] args) throws Exception {\n        // TODO: implement solution\n    }\n}"
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "id": "part3-3-easy",
+  "title": "Oil Tank",
+  "difficulty": "Easy",
+  "topics": [
+    "Greedy",
+    "Simulation",
+    "Arrays"
+  ],
+  "description": "You have an oil tank with a capacity of C litres that can be bought and sold by N people. The people are standing in a queue are served sequentially in the order of array A.\n\nSome of them want to sell a litre of oil and some of them want to buy a litre of oil and A describes this. Here, A[i] = 1 denotes that the person wants to sell a litre of oil and A[i] = -1 denotes that the person wants to buy a litre of oil.\n\nWhen a person wants to sell a litre of oil but the tank is full, they cannot sell it and become upset. Similarly, when a person wants to buy a litre of oil but the tank is empty, they cannot buy it and become upset. Both these cases cause disturbances.\n\nYou can minimize the disturbance by filling the tank initially with a certain X litres of oil.\n\nFind the minimum initial amount of oil X that results in the least number of disturbances.",
+  "inputFormat": "The first line contains an integer, N, denoting the number of elements in A.\nThe next line contains an integer, C, denoting the capacity of the tank.\nEach line i of the N subsequent lines (where 0 <= i < N) contains an integer describing A[i].",
+  "outputFormat": "Print a single integer denoting the minimum initial amount of oil X that results in the least number of disturbances.",
+  "constraints": [
+    "1 <= N <= 10^5",
+    "1 <= C <= 10^5",
+    "-1 <= A[i] <= 1"
+  ],
+  "examples": [
+    {
+      "input": "3\n3\n-1\n1\n1",
+      "output": "1",
+      "explanation": "Given N=3, C=3, A=[-1, 1, 1].\nTo avoid disturbance for Person 1, we need at least 1 liter in the tank initially.\nAfter Person 1 buys 1 liter, the tank will be empty.\nPerson 2 sells 1 liter, so the tank will have 1 liter.\nPerson 3 sells another liter, so the tank will have 2 liters.\nThe minimum initial amount X needed to achieve the least number of disturbances is 1 liter."
+    },
+    {
+      "input": "3\n2\n-1\n-1\n1",
+      "output": "2",
+      "explanation": "Given N=3, C=2, A=[-1, -1, 1].\nTo ensure that there are no disturbances:\nWe need at least 1 liter for Person 1.\nWe need an additional 1 liter for Person 2, making the total initial amount of oil X=2.\nThus, the minimum initial amount of oil X required to achieve the least number of disturbances is 2."
+    },
+    {
+      "input": "4\n3\n1\n1\n1\n1",
+      "output": "0",
+      "explanation": "Given N=4, C=3, A=[1, 1, 1, 1].\n1. Person 1 wants to sell 1 liter of oil (A[1]=1). Initially, the tank is empty, so Person 1 can sell 1 liter. The tank now has 1 liter of oil.\n2. Person 2 wants to sell 1 liter of oil (A[2]=1). The tank now has 1 liter, so Person 2 can sell 1 liter. The tank now has 2 liters of oil.\n3. Person 3 wants to sell 1 liter of oil (A[3]=1). The tank now has 2 liters, so Person 3 can sell 1 liter. The tank now has 3 liters of oil, which is its full capacity.\n4. Person 4 wants to sell 1 liter of oil (A[4]=1). The tank is now full (3 liters), so Person 4 cannot sell 1 liter and will be upset.\nGiven that the tank capacity C is 3 liters and all actions are selling oil, the only disturbance occurs when Person 4 tries to sell oil to a full tank.\nTherefore, no initial amount of oil X will change the disturbance for Person 4, as the tank's capacity is already limiting.\nHence, the minimum initial amount of oil X required to achieve the least number of disturbances remains 0."
+    }
+  ],
+  "hiddenTestCases": [
+    {
+      "input": "1\n1\n1",
+      "output": "0"
+    },
+    {
+      "input": "1\n1\n-1",
+      "output": "1"
+    },
+    {
+      "input": "4\n5\n-1\n-1\n-1\n-1",
+      "output": "4"
+    },
+    {
+      "input": "4\n2\n1\n-1\n1\n-1",
+      "output": "0"
+    },
+    {
+      "input": "4\n2\n-1\n1\n-1\n1",
+      "output": "1"
+    },
+    {
+      "input": "5\n1\n1\n1\n1\n1\n1",
+      "output": "0"
+    },
+    {
+      "input": "5\n1\n-1\n-1\n-1\n-1\n-1",
+      "output": "1"
+    },
+    {
+      "input": "6\n3\n-1\n-1\n1\n1\n1\n1",
+      "output": "2"
+    },
+    {
+      "input": "6\n3\n1\n1\n1\n-1\n-1\n-1",
+      "output": "0"
+    },
+    {
+      "input": "8\n4\n-1\n-1\n-1\n1\n1\n1\n1\n1",
+      "output": "3"
+    },
+    {
+      "input": "4\n3\n1\n1\n-1\n-1",
+      "output": "0"
+    },
+    {
+      "input": "5\n2\n-1\n1\n1\n1\n-1",
+      "output": "1"
+    }
+  ],
+  "starterCode": {
+    "python": "import sys\n\ndef solve():\n    # TODO: implement solution\n    pass\n\nif __name__ == \"__main__\":\n    solve()",
+    "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    // TODO: implement solution\n    return 0;\n}",
+    "java": "import java.io.*;\nimport java.util.*;\n\npublic class Main {\n    public static void main(String[] args) throws Exception {\n        // TODO: implement solution\n    }\n}"
+  }
+}

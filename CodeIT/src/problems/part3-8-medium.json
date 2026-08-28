@@ -1,0 +1,91 @@
+{
+  "id": "part3-8-medium",
+  "title": "Circular Table Jumps",
+  "difficulty": "Medium",
+  "topics": [
+    "Graphs",
+    "Breadth-First Search",
+    "Shortest Path"
+  ],
+  "description": "A group of N people are seated around a circular table to play a game.\n\nThe game involves jumping from one chair to another. Each person sitting on chair i can jump A[i] chairs to either the right or left in one jump where 1 <= i <= N.\n\nBob, sitting on chair X, needs to reach chair Y, where the escape door is located.\n\nFind the minimum number of jumps required to reach chair Y from chair X. If this is impossible using the given jump distances, then return -1.",
+  "inputFormat": "The first line contains an integer, N, denoting the number of people playing the game.\nThe next line contains an integer, X, denoting the chair on which Bob is seated.\nThe next line contains an integer, Y, denoting the chair which Bob wants to reach.\nEach line i of the N subsequent lines (where 1 <= i <= N) contains an integer describing A[i] is the number of chairs the person sitting in chair number i can jump either right or left.",
+  "outputFormat": "Print a single integer denoting the minimum number of jumps required to reach chair Y from chair X. If it is impossible, print -1.",
+  "constraints": [
+    "1 <= N <= 10^5",
+    "1 <= X <= N",
+    "1 <= Y <= N",
+    "1 <= A[i] <= 10^5"
+  ],
+  "examples": [
+    {
+      "input": "5\n5\n1\n1\n2\n3\n2\n4",
+      "output": "1",
+      "explanation": "Bob starts at chair 5 and wants to reach chair 1. The jump distance from chair 5 is A[5] = 4. Jumping 4 chairs to the left from chair 5 lands exactly on chair 1. Hence, only 1 jump is required."
+    },
+    {
+      "input": "5\n2\n4\n5\n4\n3\n2\n1",
+      "output": "3",
+      "explanation": "Bob starts at chair 2 and wants to reach chair 4. A path with the minimum number of jumps is 2 -> 3 -> 5 -> 4. This takes exactly 3 jumps."
+    },
+    {
+      "input": "6\n2\n3\n2\n2\n2\n2\n2\n2",
+      "output": "-1",
+      "explanation": "Bob starts at chair 2. From chair 2, he can only jump 2 chairs left or right, which will always land him on chairs with even numbers (4, 6, 2). Since chair 3 is an odd number, it is impossible to reach it. Hence, the answer is -1."
+    }
+  ],
+  "hiddenTestCases": [
+    {
+      "input": "1\n1\n1\n10",
+      "output": "0"
+    },
+    {
+      "input": "5\n3\n3\n1\n2\n3\n4\n5",
+      "output": "0"
+    },
+    {
+      "input": "10\n1\n2\n2\n2\n2\n2\n2\n2\n2\n2\n2\n2",
+      "output": "-1"
+    },
+    {
+      "input": "4\n1\n3\n2\n1\n1\n1",
+      "output": "1"
+    },
+    {
+      "input": "4\n1\n4\n1\n1\n1\n1",
+      "output": "1"
+    },
+    {
+      "input": "5\n1\n4\n1\n1\n2\n1\n1",
+      "output": "2"
+    },
+    {
+      "input": "10\n1\n5\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1",
+      "output": "4"
+    },
+    {
+      "input": "7\n1\n2\n10\n10\n10\n10\n10\n10\n10",
+      "output": "2"
+    },
+    {
+      "input": "6\n1\n2\n9\n9\n9\n9\n9\n9",
+      "output": "-1"
+    },
+    {
+      "input": "8\n1\n6\n7\n15\n3\n4\n1\n2\n9\n8",
+      "output": "3"
+    },
+    {
+      "input": "5\n2\n1\n1\n1\n1\n1\n1",
+      "output": "1"
+    },
+    {
+      "input": "7\n1\n5\n2\n3\n1\n4\n2\n1\n5",
+      "output": "2"
+    }
+  ],
+  "starterCode": {
+    "python": "import sys\n\ndef solve():\n    # TODO: implement solution\n    pass\n\nif __name__ == \"__main__\":\n    solve()",
+    "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    // TODO: implement solution\n    return 0;\n}",
+    "java": "import java.io.*;\nimport java.util.*;\n\npublic class Main {\n    public static void main(String[] args) throws Exception {\n        // TODO: implement solution\n    }\n}"
+  }
+}
