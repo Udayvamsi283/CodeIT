@@ -3,9 +3,12 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import cookieParser from 'cookie-parser';
 
+import connectDB from './config/db.js';
 import healthRoutes from './routes/health.js';
 import judgeRoutes from './routes/judge.js';
+import authRoutes from './routes/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -45,9 +48,11 @@ app.use(cors({
 }));
 
 app.use(express.json({ limit: '1mb' }));
+app.use(cookieParser());
 
 // Mount API Routes
 app.use('/api', healthRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api', judgeRoutes);
 
 // Fallback for unmatched API routes
@@ -66,6 +71,15 @@ app.use((err, req, res, next) => {
     error: err.message.includes('CORS') ? err.message : 'Internal server error occurred.'
   });
 });
+
+// Initialize database connection on server startup
+if (process.env.MONGODB_URI) {
+  connectDB().catch((err) => {
+    console.error('⚠️ Server continuing startup, but database connection failed:', err.message);
+  });
+} else {
+  console.warn('⚠️ MONGODB_URI not set. Database features will be unavailable until configured.');
+}
 
 app.listen(PORT, () => {
   console.log(`🚀 CodeIT Backend Server running on port ${PORT}`);

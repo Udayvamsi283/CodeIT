@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Terminal, Code2, Info, X, ExternalLink, Sparkles, BookOpen } from 'lucide-react';
+import { Code2, Info, X, Sparkles, BookOpen, LogIn, LogOut, UserPlus, User } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 export default function Navbar() {
   const location = useLocation();
   const [showAboutModal, setShowAboutModal] = useState(false);
+  const { user, isAuthenticated, loading, logout } = useAuth();
 
   const isProblemsActive = location.pathname.startsWith('/problems') || location.pathname.startsWith('/problem');
 
@@ -58,6 +60,49 @@ export default function Navbar() {
               <Info className="w-3.5 h-3.5 text-neutral-400" />
               <span>About</span>
             </button>
+
+            {/* Auth Controls */}
+            {!loading && (
+              <div className="flex items-center gap-2 pl-2 border-l border-[#21262d]">
+                {isAuthenticated && user ? (
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 px-2.5 py-1 bg-[#161b22] border border-[#30363d] rounded-md text-xs text-neutral-300">
+                      <div className="w-5 h-5 rounded-full bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
+                        <User className="w-3 h-3" />
+                      </div>
+                      <span className="font-medium text-white max-w-[120px] truncate">
+                        {user.username}
+                      </span>
+                    </div>
+                    <button
+                      onClick={logout}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-neutral-300 hover:text-white bg-neutral-800/50 hover:bg-neutral-800 border border-neutral-700/60 rounded-md transition-all cursor-pointer"
+                      title="Log out"
+                    >
+                      <LogOut className="w-3.5 h-3.5 text-neutral-400" />
+                      <span className="hidden sm:inline">Logout</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Link
+                      to="/login"
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-neutral-300 hover:text-white hover:bg-neutral-800/60 rounded-md transition-colors"
+                    >
+                      <LogIn className="w-3.5 h-3.5 text-neutral-400" />
+                      <span>Sign In</span>
+                    </Link>
+                    <Link
+                      to="/register"
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-500 rounded-md transition-colors shadow-xs shadow-blue-600/20"
+                    >
+                      <UserPlus className="w-3.5 h-3.5" />
+                      <span>Register</span>
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </header>
