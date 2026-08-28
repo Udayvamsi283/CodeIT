@@ -103,6 +103,55 @@ async function runTests() {
   assert.strictEqual(nextCalled, true, 'Next must be called for admin user');
   console.log('✅ Test 6 Passed: requireAdmin successfully enforces isAdmin === true.');
 
+  // Test 7: Cookie Options - Development Mode
+  console.log('\nTest 7: Cookie Configuration - Development Mode');
+  const { getCookieOptions, getClearCookieOptions } = await import('../config/cookie.js');
+  
+  process.env.NODE_ENV = 'development';
+  process.env.COOKIE_SECURE = 'false';
+  process.env.COOKIE_SAME_SITE = 'lax';
+  const devOptions = getCookieOptions();
+  assert.strictEqual(devOptions.httpOnly, true, 'Must be httpOnly in dev');
+  assert.strictEqual(devOptions.secure, false, 'Must not be secure in dev');
+  assert.strictEqual(devOptions.sameSite, 'lax', 'Must be lax in dev');
+  assert.strictEqual(devOptions.path, '/', 'Must be path /');
+  console.log('✅ Test 7 Passed: Development cookie configuration verified: { httpOnly: true, secure: false, sameSite: "lax" }');
+
+  // Test 8: Cookie Options - Production Cross-Site Mode (Vercel -> Render)
+  console.log('\nTest 8: Cookie Configuration - Production Cross-Site Mode (Vercel -> Render)');
+  process.env.NODE_ENV = 'production';
+  process.env.COOKIE_SECURE = 'true';
+  process.env.COOKIE_SAME_SITE = 'none';
+  const prodOptions = getCookieOptions();
+  assert.strictEqual(prodOptions.httpOnly, true, 'Must be httpOnly in prod');
+  assert.strictEqual(prodOptions.secure, true, 'Must be secure in prod');
+  assert.strictEqual(prodOptions.sameSite, 'none', 'Must be sameSite: none in prod');
+  assert.strictEqual(prodOptions.path, '/', 'Must be path /');
+  console.log('✅ Test 8 Passed: Production cookie configuration verified: { httpOnly: true, secure: true, sameSite: "none" }');
+
+  // Test 9: Cookie Options - Invariant: sameSite=none strictly enforces secure=true
+  console.log('\nTest 9: Cookie Configuration - Invariant: sameSite=none forces secure=true');
+  process.env.NODE_ENV = 'development';
+  process.env.COOKIE_SECURE = 'false';
+  process.env.COOKIE_SAME_SITE = 'none';
+  const invariantOptions = getCookieOptions();
+  assert.strictEqual(invariantOptions.sameSite, 'none');
+  assert.strictEqual(invariantOptions.secure, true, 'Chrome invariant: sameSite=none MUST have secure=true');
+  console.log('✅ Test 9 Passed: sameSite=none strictly forces secure=true.');
+
+  // Test 10: Clear Cookie Options
+  console.log('\nTest 10: Clear Cookie Configuration');
+  process.env.NODE_ENV = 'production';
+  process.env.COOKIE_SECURE = 'true';
+  process.env.COOKIE_SAME_SITE = 'none';
+  const clearOptions = getClearCookieOptions();
+  assert.strictEqual(clearOptions.httpOnly, true);
+  assert.strictEqual(clearOptions.secure, true);
+  assert.strictEqual(clearOptions.sameSite, 'none');
+  assert.strictEqual(clearOptions.path, '/');
+  assert.strictEqual(clearOptions.maxAge, undefined, 'maxAge must be omitted for clearCookie');
+  console.log('✅ Test 10 Passed: getClearCookieOptions preserves cross-site flags without maxAge.');
+
   console.log('\n🎉 All Unit & Security Invariants PASSED!');
   process.exit(0);
 }

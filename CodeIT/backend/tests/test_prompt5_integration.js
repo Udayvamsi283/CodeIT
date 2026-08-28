@@ -81,10 +81,10 @@ async function runPrompt5IntegrationTests() {
     userBId = dataB.user.id;
     console.log('✅ Users registered: User A ID:', userAId, '| User B ID:', userBId);
 
-    // 2. User A saves python code for example-001
-    console.log('\n2. User A saving Python code for example-001 (PUT /api/code/example-001/python)...');
+    // 2. User A saves python code for part2-sample1
+    console.log('\n2. User A saving Python code for part2-sample1 (PUT /api/code/part2-sample1/python)...');
     const userAPythonCode = 'def solution():\n    # User A Python Code\n    return "User A Solution"';
-    const putRes = await fetch(`${baseUrl}/api/code/example-001/python`, {
+    const putRes = await fetch(`${baseUrl}/api/code/part2-sample1/python`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', Cookie: cookieUserA },
       body: JSON.stringify({ sourceCode: userAPythonCode })
@@ -95,8 +95,8 @@ async function runPrompt5IntegrationTests() {
     console.log('✅ User A code saved successfully.');
 
     // 3. Verify User A can retrieve saved code
-    console.log('\n3. User A retrieving saved code (GET /api/code/example-001/python)...');
-    const getResA = await fetch(`${baseUrl}/api/code/example-001/python`, {
+    console.log('\n3. User A retrieving saved code (GET /api/code/part2-sample1/python)...');
+    const getResA = await fetch(`${baseUrl}/api/code/part2-sample1/python`, {
       headers: { Cookie: cookieUserA }
     });
     assert.strictEqual(getResA.status, 200);
@@ -106,19 +106,19 @@ async function runPrompt5IntegrationTests() {
     console.log('✅ User A retrieved matching saved code.');
 
     // 4. Verify User B gets null (User Isolation)
-    console.log('\n4. User B requesting example-001/python (Verifying User Isolation)...');
-    const getResB = await fetch(`${baseUrl}/api/code/example-001/python`, {
+    console.log('\n4. User B requesting part2-sample1/python (Verifying User Isolation)...');
+    const getResB = await fetch(`${baseUrl}/api/code/part2-sample1/python`, {
       headers: { Cookie: cookieUserB }
     });
     assert.strictEqual(getResB.status, 200);
     const getDataB = await getResB.json();
     assert.strictEqual(getDataB.success, true);
     assert.strictEqual(getDataB.sourceCode, null, 'User B must NOT see User A saved code!');
-    console.log('✅ User isolation verified: User B received null for example-001/python.');
+    console.log('✅ User isolation verified: User B received null for part2-sample1/python.');
 
-    // 5. User A records attempt on example-001
-    console.log('\n5. User A recording problem attempt (POST /api/progress/example-001/attempt)...');
-    const attemptRes = await fetch(`${baseUrl}/api/progress/example-001/attempt`, {
+    // 5. User A records attempt on part2-sample1
+    console.log('\n5. User A recording problem attempt (POST /api/progress/part2-sample1/attempt)...');
+    const attemptRes = await fetch(`${baseUrl}/api/progress/part2-sample1/attempt`, {
       method: 'POST',
       headers: { Cookie: cookieUserA }
     });
@@ -145,16 +145,18 @@ def main():
     input_data = sys.stdin.read().split()
     if not input_data:
         return
-    n = int(input_data[0])
-    nums = [int(x) for x in input_data[1:n+1]]
-    target = int(input_data[n+1])
-    lookup = {}
-    for i, num in enumerate(nums):
-        comp = target - num
-        if comp in lookup:
-            print(f"{lookup[comp]} {i}")
-            return
-        lookup[num] = i
+    it = iter(input_data)
+    n = int(next(it))
+    A = [int(next(it)) for _ in range(n)]
+    q = int(next(it))
+    for _ in range(q):
+        l = int(next(it))
+        r = int(next(it))
+        x = int(next(it))
+        y = int(next(it))
+        for idx, i in enumerate(range(l, r + 1)):
+            A[i] = x + idx * y
+    print(sum(A) % (10**9 + 7))
 
 if __name__ == '__main__':
     main()
@@ -163,7 +165,7 @@ if __name__ == '__main__':
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        problemId: 'example-001',
+        problemId: 'part2-sample1',
         language: 'python',
         sourceCode: pythonSolution
       })
@@ -183,7 +185,7 @@ if __name__ == '__main__':
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Cookie: cookieUserA },
       body: JSON.stringify({
-        problemId: 'example-001',
+        problemId: 'part2-sample1',
         language: 'python',
         sourceCode: pythonSolution
       })
@@ -194,7 +196,7 @@ if __name__ == '__main__':
     assert.strictEqual(authSubmitData.summary.passed, 15);
 
     // Verify submission document was persisted
-    const subDocA = await Submission.findOne({ userId: userAId, problemId: 'example-001' });
+    const subDocA = await Submission.findOne({ userId: userAId, problemId: 'part2-sample1' });
     assert.ok(subDocA, 'Submission must be saved in MongoDB for User A');
     assert.strictEqual(subDocA.status, 'ACCEPTED');
     assert.strictEqual(subDocA.passed, 15);
@@ -203,7 +205,7 @@ if __name__ == '__main__':
     console.log('✅ Submission persisted in MongoDB with aggregate metrics.');
 
     // Verify User A progress became SOLVED
-    const progDocA = await ProblemProgress.findOne({ userId: userAId, problemId: 'example-001' });
+    const progDocA = await ProblemProgress.findOne({ userId: userAId, problemId: 'part2-sample1' });
     assert.ok(progDocA);
     assert.strictEqual(progDocA.status, 'SOLVED');
     assert.ok(progDocA.solvedLanguages.includes('python'));
@@ -217,7 +219,7 @@ if __name__ == '__main__':
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Cookie: cookieUserA },
       body: JSON.stringify({
-        problemId: 'example-001',
+        problemId: 'part2-sample1',
         language: 'python',
         sourceCode: failingCode
       })
@@ -227,13 +229,13 @@ if __name__ == '__main__':
     assert.strictEqual(failData.status, 'WRONG_ANSWER');
 
     // Verify progress remains SOLVED!
-    const progDocAfterFail = await ProblemProgress.findOne({ userId: userAId, problemId: 'example-001' });
+    const progDocAfterFail = await ProblemProgress.findOne({ userId: userAId, problemId: 'part2-sample1' });
     assert.strictEqual(progDocAfterFail.status, 'SOLVED', 'Progress must NOT downgrade to ATTEMPTED after a failed submission!');
     console.log('✅ Non-downgrade rule verified: Status remains SOLVED after failing submission.');
 
     // 10. User A retrieves paginated submission history (GET /api/submissions)
     console.log('\n10. User A retrieving submission history (GET /api/submissions)...');
-    const subHistoryResA = await fetch(`${baseUrl}/api/submissions?problemId=example-001`, {
+    const subHistoryResA = await fetch(`${baseUrl}/api/submissions?problemId=part2-sample1`, {
       headers: { Cookie: cookieUserA }
     });
     assert.strictEqual(subHistoryResA.status, 200);
@@ -263,16 +265,16 @@ if __name__ == '__main__':
     assert.strictEqual(statsDataA.stats.totalAttempted, 1);
     console.log('✅ User statistics verified:', statsDataA.stats);
 
-    // 13. User A deletes saved code (DELETE /api/code/example-001/python)
-    console.log('\n13. User A deleting saved code (DELETE /api/code/example-001/python)...');
-    const delResA = await fetch(`${baseUrl}/api/code/example-001/python`, {
+    // 13. User A deletes saved code (DELETE /api/code/part2-sample1/python)
+    console.log('\n13. User A deleting saved code (DELETE /api/code/part2-sample1/python)...');
+    const delResA = await fetch(`${baseUrl}/api/code/part2-sample1/python`, {
       method: 'DELETE',
       headers: { Cookie: cookieUserA }
     });
     assert.strictEqual(delResA.status, 200);
     const delDataA = await delResA.json();
     assert.strictEqual(delDataA.success, true);
-    const checkDeleted = await SavedCode.findOne({ userId: userAId, problemId: 'example-001', language: 'python' });
+    const checkDeleted = await SavedCode.findOne({ userId: userAId, problemId: 'part2-sample1', language: 'python' });
     assert.strictEqual(checkDeleted, null);
     console.log('✅ Saved code deleted successfully.');
 
@@ -285,7 +287,7 @@ if __name__ == '__main__':
         Cookie: 'codeit_token=invalid_forged_or_expired_jwt_token_12345'
       },
       body: JSON.stringify({
-        problemId: 'example-001',
+        problemId: 'part2-sample1',
         language: 'python',
         sourceCode: pythonSolution
       })

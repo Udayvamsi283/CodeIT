@@ -3,29 +3,9 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import { requireAuth } from '../middleware/auth.js';
+import { getCookieOptions, getClearCookieOptions } from '../config/cookie.js';
 
 const router = express.Router();
-
-/**
- * Helper to build production-hardened cookie configuration.
- * For cross-site production (Vercel frontend -> Render backend), defaults to SameSite: 'none' and Secure: true.
- * For local development, defaults to SameSite: 'lax' and Secure: false.
- */
-function getCookieOptions() {
-  const isProd = process.env.NODE_ENV === 'production' || process.env.COOKIE_SECURE === 'true';
-  const secure = process.env.COOKIE_SECURE !== undefined
-    ? process.env.COOKIE_SECURE === 'true'
-    : isProd;
-  const sameSite = process.env.COOKIE_SAME_SITE || (secure ? 'none' : 'lax');
-
-  return {
-    httpOnly: true,
-    secure: secure,
-    sameSite: sameSite,
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
-    path: '/'
-  };
-}
 
 /**
  * Generate a signed JWT for a given user ID
@@ -244,9 +224,8 @@ router.get('/me', requireAuth, (req, res) => {
  */
 router.post('/logout', (req, res) => {
   try {
-    const cookieOptions = getCookieOptions();
-    delete cookieOptions.maxAge;
-    res.clearCookie('codeit_token', cookieOptions);
+    const clearOptions = getClearCookieOptions();
+    res.clearCookie('codeit_token', clearOptions);
 
     return res.status(200).json({
       success: true,

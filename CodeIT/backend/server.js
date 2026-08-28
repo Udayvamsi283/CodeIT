@@ -22,6 +22,9 @@ dotenv.config({ path: path.resolve(__dirname, '.env') });
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust reverse proxy (Render, AWS, Cloudflare) for secure cookie forwarding
+app.set('trust proxy', 1);
+
 // Parse configured frontend origins from environment (supports comma-separated list or wildcard)
 const configuredOrigins = process.env.FRONTEND_URL
   ? process.env.FRONTEND_URL.split(',').map((o) => o.trim()).filter(Boolean)

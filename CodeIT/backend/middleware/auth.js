@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import { getClearCookieOptions } from '../config/cookie.js';
 
 /**
  * Authentication Middleware
@@ -95,15 +96,7 @@ export async function optionalAuth(req, res, next) {
       decoded = jwt.verify(token, secret);
     } catch {
       // Clear invalid/expired cookie safely
-      const isProd = process.env.NODE_ENV === 'production' || process.env.COOKIE_SECURE === 'true';
-      const secure = process.env.COOKIE_SECURE !== undefined ? process.env.COOKIE_SECURE === 'true' : isProd;
-      const sameSite = process.env.COOKIE_SAME_SITE || (secure ? 'none' : 'lax');
-      res.clearCookie('codeit_token', {
-        httpOnly: true,
-        secure,
-        sameSite,
-        path: '/'
-      });
+      res.clearCookie('codeit_token', getClearCookieOptions());
       req.user = null;
       return next();
     }
@@ -116,15 +109,7 @@ export async function optionalAuth(req, res, next) {
     const user = await User.findById(decoded.userId).select('username email isAdmin');
     if (!user) {
       // User account no longer exists in database, clear cookie
-      const isProd = process.env.NODE_ENV === 'production' || process.env.COOKIE_SECURE === 'true';
-      const secure = process.env.COOKIE_SECURE !== undefined ? process.env.COOKIE_SECURE === 'true' : isProd;
-      const sameSite = process.env.COOKIE_SAME_SITE || (secure ? 'none' : 'lax');
-      res.clearCookie('codeit_token', {
-        httpOnly: true,
-        secure,
-        sameSite,
-        path: '/'
-      });
+      res.clearCookie('codeit_token', getClearCookieOptions());
       req.user = null;
       return next();
     }

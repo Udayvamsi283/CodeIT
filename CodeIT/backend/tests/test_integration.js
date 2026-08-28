@@ -106,16 +106,18 @@ def main():
     input_data = sys.stdin.read().split()
     if not input_data:
         return
-    n = int(input_data[0])
-    nums = [int(x) for x in input_data[1:n+1]]
-    target = int(input_data[n+1])
-    lookup = {}
-    for i, num in enumerate(nums):
-        comp = target - num
-        if comp in lookup:
-            print(f"{lookup[comp]} {i}")
-            return
-        lookup[num] = i
+    it = iter(input_data)
+    n = int(next(it))
+    A = [int(next(it)) for _ in range(n)]
+    q = int(next(it))
+    for _ in range(q):
+        l = int(next(it))
+        r = int(next(it))
+        x = int(next(it))
+        y = int(next(it))
+        for idx, i in enumerate(range(l, r + 1)):
+            A[i] = x + idx * y
+    print(sum(A) % (10**9 + 7))
 
 if __name__ == '__main__':
     main()
@@ -125,7 +127,7 @@ if __name__ == '__main__':
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        problemId: 'example-001',
+        problemId: 'part2-sample1',
         language: 'python',
         sourceCode: pythonCode
       })
@@ -142,7 +144,7 @@ if __name__ == '__main__':
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        problemId: 'example-001',
+        problemId: 'part2-sample1',
         language: 'python',
         sourceCode: pythonCode
       })
