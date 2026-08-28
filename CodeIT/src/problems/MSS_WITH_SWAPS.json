@@ -23,8 +23,8 @@
     },
     {
       "input": "3\n0\n5\n-1\n5",
-      "output": "2",
-      "explanation": "The maximum subarray sum is the sum of [2] which is equal to 2."
+      "output": "9",
+      "explanation": "The maximum subarray sum is the sum of [5, -1, 5] which is equal to 9."
     },
     {
       "input": "3\n0\n1\n-5\n2",

@@ -1,17 +1,73 @@
-import { useState, useMemo } from 'react';
-import { Search, Filter, Layers, CheckCircle, Flame, Sparkles, BookOpen, X } from 'lucide-react';
+import { useState, useMemo, useEffect } from 'react';
+import { Search, Filter, Layers, CheckCircle, Flame, Sparkles, BookOpen, X, Check, Clock } from 'lucide-react';
 import { getAllProblems, getAllTopics, getProblemStats } from '../utils/problemLoader';
 import ProblemCard from '../components/ProblemCard';
+import { useAuth } from '../context/AuthContext';
+
+const rawApiUrl = import.meta.env.VITE_API_URL || '';
+const API_BASE_URL = rawApiUrl.replace(/\/+$/, '');
 
 export default function Problems() {
+  const { isAuthenticated, loading: authLoading } = useAuth();
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState('All');
   const [selectedTopic, setSelectedTopic] = useState('All');
+
+  // User-specific progress state
+  const [progressMap, setProgressMap] = useState({});
+  const [userStats, setUserStats] = useState(null);
 
   // Discover problems and metadata dynamically
   const problems = useMemo(() => getAllProblems(), []);
   const allTopics = useMemo(() => getAllTopics(), []);
   const stats = useMemo(() => getProblemStats(), []);
+
+  // Fetch authenticated progress and stats
+  useEffect(() => {
+    if (!isAuthenticated || authLoading) {
+      setProgressMap({});
+      setUserStats(null);
+      return;
+    }
+
+    let isMounted = true;
+
+    async function loadUserProgress() {
+      try {
+        const [progressRes, statsRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/api/progress`, { credentials: 'include' }),
+          fetch(`${API_BASE_URL}/api/progress/stats`, { credentials: 'include' })
+        ]);
+
+        if (progressRes.ok) {
+          const data = await progressRes.json();
+          if (data.success && Array.isArray(data.progress) && isMounted) {
+            const map = {};
+            data.progress.forEach((item) => {
+              map[item.problemId] = item;
+            });
+            setProgressMap(map);
+          }
+        }
+
+        if (statsRes.ok) {
+          const sData = await statsRes.json();
+          if (sData.success && sData.stats && isMounted) {
+            setUserStats(sData.stats);
+          }
+        }
+      } catch (err) {
+        console.warn('Could not fetch user progress:', err.message);
+      }
+    }
+
+    loadUserProgress();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isAuthenticated, authLoading]);
 
   // Filter problems based on user criteria
   const filteredProblems = useMemo(() => {
@@ -66,6 +122,12 @@ export default function Problems() {
 
           {/* Quick Stats Overview */}
           <div className="flex items-center gap-2 flex-wrap">
+            {isAuthenticated && userStats && (
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-950/40 border border-blue-500/30 text-xs text-blue-300">
+                <span className="text-blue-300 font-medium">Your Solved:</span>
+                <span className="font-bold text-white font-mono">{userStats.totalSolved} / {stats.total}</span>
+              </div>
+            )}
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#161b22] border border-[#21262d] text-xs">
               <span className="text-neutral-400">Total:</span>
               <span className="font-semibold text-white font-mono">{stats.total}</span>
@@ -73,17 +135,23 @@ export default function Problems() {
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#161b22] border border-[#21262d] text-xs">
               <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
               <span className="text-neutral-400">Easy:</span>
-              <span className="font-semibold text-emerald-400 font-mono">{stats.easy}</span>
+              <span className="font-semibold text-emerald-400 font-mono">
+                {userStats ? `${userStats.easySolved}/` : ''}{stats.easy}
+              </span>
             </div>
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#161b22] border border-[#21262d] text-xs">
               <span className="w-2 h-2 rounded-full bg-amber-400"></span>
               <span className="text-neutral-400">Med:</span>
-              <span className="font-semibold text-amber-400 font-mono">{stats.medium}</span>
+              <span className="font-semibold text-amber-400 font-mono">
+                {userStats ? `${userStats.mediumSolved}/` : ''}{stats.medium}
+              </span>
             </div>
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#161b22] border border-[#21262d] text-xs">
               <span className="w-2 h-2 rounded-full bg-rose-400"></span>
               <span className="text-neutral-400">Hard:</span>
-              <span className="font-semibold text-rose-400 font-mono">{stats.hard}</span>
+              <span className="font-semibold text-rose-400 font-mono">
+                {userStats ? `${userStats.hardSolved}/` : ''}{stats.hard}
+              </span>
             </div>
           </div>
         </div>
@@ -111,12 +179,12 @@ export default function Problems() {
               )}
             </div>
 
-            {/* Difficulty Selector */}
+            {/* Difficulty Filter */}
             <div className="sm:col-span-3 lg:col-span-3">
               <select
                 value={selectedDifficulty}
                 onChange={(e) => setSelectedDifficulty(e.target.value)}
-                className="w-full bg-[#161b22] border border-[#30363d] rounded-lg px-3 py-2 text-sm text-neutral-200 focus:outline-none focus:border-blue-500 cursor-pointer"
+                className="w-full bg-[#161b22] border border-[#30363d] rounded-lg px-3 py-2 text-sm text-neutral-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 cursor-pointer transition-colors"
               >
                 <option value="All">All Difficulties</option>
                 <option value="Easy">Easy</option>
@@ -125,12 +193,12 @@ export default function Problems() {
               </select>
             </div>
 
-            {/* Topic Selector */}
+            {/* Topic Filter */}
             <div className="sm:col-span-3 lg:col-span-3">
               <select
                 value={selectedTopic}
                 onChange={(e) => setSelectedTopic(e.target.value)}
-                className="w-full bg-[#161b22] border border-[#30363d] rounded-lg px-3 py-2 text-sm text-neutral-200 focus:outline-none focus:border-blue-500 cursor-pointer"
+                className="w-full bg-[#161b22] border border-[#30363d] rounded-lg px-3 py-2 text-sm text-neutral-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 cursor-pointer transition-colors"
               >
                 <option value="All">All Topics ({allTopics.length})</option>
                 {allTopics.map((topic) => (
@@ -142,41 +210,50 @@ export default function Problems() {
             </div>
           </div>
 
-          {/* Active Filter Tags */}
+          {/* Active filter pills */}
           {hasActiveFilters && (
-            <div className="flex items-center gap-2 flex-wrap text-xs text-neutral-400">
-              <span>Filtering by:</span>
+            <div className="flex items-center gap-2 flex-wrap text-xs pt-1">
+              <span className="text-neutral-500">Active Filters:</span>
+              {searchQuery && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#21262d] text-neutral-200 border border-[#30363d]">
+                  <span>"{searchQuery}"</span>
+                  <button onClick={() => setSearchQuery('')} className="hover:text-white cursor-pointer">
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
               {selectedDifficulty !== 'All' && (
-                <span className="px-2 py-0.5 rounded bg-neutral-800 text-neutral-200 border border-neutral-700">
-                  Difficulty: {selectedDifficulty}
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#21262d] text-neutral-200 border border-[#30363d]">
+                  <span>Difficulty: {selectedDifficulty}</span>
+                  <button onClick={() => setSelectedDifficulty('All')} className="hover:text-white cursor-pointer">
+                    <X className="w-3 h-3" />
+                  </button>
                 </span>
               )}
               {selectedTopic !== 'All' && (
-                <span className="px-2 py-0.5 rounded bg-neutral-800 text-neutral-200 border border-neutral-700">
-                  Topic: {selectedTopic}
-                </span>
-              )}
-              {searchQuery && (
-                <span className="px-2 py-0.5 rounded bg-neutral-800 text-neutral-200 border border-neutral-700">
-                  Query: "{searchQuery}"
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#21262d] text-neutral-200 border border-[#30363d]">
+                  <span>Topic: {selectedTopic}</span>
+                  <button onClick={() => setSelectedTopic('All')} className="hover:text-white cursor-pointer">
+                    <X className="w-3 h-3" />
+                  </button>
                 </span>
               )}
               <button
                 onClick={resetFilters}
-                className="text-blue-400 hover:text-blue-300 underline underline-offset-2 ml-1 cursor-pointer font-medium"
+                className="text-xs text-blue-400 hover:text-blue-300 underline underline-offset-2 ml-1 cursor-pointer"
               >
-                Reset all
+                Reset All
               </button>
             </div>
           )}
         </div>
 
-        {/* Problem List Section */}
+        {/* Problems List */}
         <div className="space-y-3">
-          {/* Table column headers (Desktop) */}
-          <div className="hidden md:flex items-center justify-between px-4 py-2 text-xs font-semibold uppercase tracking-wider text-neutral-500 border-b border-[#21262d]/60">
+          {/* Table Header row */}
+          <div className="hidden md:flex items-center justify-between px-4 py-2 text-xs font-semibold text-neutral-500 uppercase tracking-wider border-b border-[#21262d]/60">
             <div className="flex items-center gap-3.5">
-              <span className="w-7">#</span>
+              <span className="w-14">Status #</span>
               <span>Title</span>
             </div>
             <div className="flex items-center gap-8">
@@ -193,6 +270,7 @@ export default function Problems() {
                   key={problem.id}
                   problem={problem}
                   index={index}
+                  progress={progressMap[problem.id]}
                 />
               ))}
             </div>

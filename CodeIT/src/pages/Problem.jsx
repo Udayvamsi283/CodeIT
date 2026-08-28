@@ -86,6 +86,7 @@ export default function Problem() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           problemId: problem.id,
           language: currentLanguage,
@@ -120,6 +121,7 @@ export default function Problem() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           problemId: problem.id,
           language: currentLanguage,
@@ -154,6 +156,7 @@ export default function Problem() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           problemId: problem.id,
           testCaseIndex,

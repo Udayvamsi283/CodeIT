@@ -9,6 +9,9 @@ import connectDB from './config/db.js';
 import healthRoutes from './routes/health.js';
 import judgeRoutes from './routes/judge.js';
 import authRoutes from './routes/auth.js';
+import codeRoutes from './routes/code.js';
+import progressRoutes from './routes/progress.js';
+import submissionRoutes from './routes/submissions.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -42,7 +45,7 @@ app.use(cors({
 
     return callback(new Error(`CORS origin not allowed: ${origin}`));
   },
-  methods: ['GET', 'POST', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
@@ -53,6 +56,9 @@ app.use(cookieParser());
 // Mount API Routes
 app.use('/api', healthRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/code', codeRoutes);
+app.use('/api/progress', progressRoutes);
+app.use('/api/submissions', submissionRoutes);
 app.use('/api', judgeRoutes);
 
 // Fallback for unmatched API routes

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserPlus, User, Mail, Lock, AlertCircle, Loader2, Code2, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -14,11 +14,12 @@ export default function Register() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // If already authenticated, redirect
-  if (isAuthenticated) {
-    navigate('/problems', { replace: true });
-    return null;
-  }
+  // If already authenticated, redirect safely in useEffect (never during render)
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/problems', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -2,6 +2,9 @@ import express from 'express';
 import { getProblemById, validateProblemStructure } from '../utils/problemLoader.js';
 import { compareOutputs } from '../utils/outputNormalizer.js';
 import { executeSubmission, sanitizeMessage } from '../services/judge0.js';
+import { optionalAuth } from '../middleware/auth.js';
+import Submission from '../models/Submission.js';
+import ProblemProgress from '../models/ProblemProgress.js';
 
 const router = express.Router();
 
@@ -271,12 +274,73 @@ router.post('/practice', async (req, res) => {
 });
 
 /**
+ * Helper to persist submission and update user progress if user is authenticated.
+ * This is strictly a secondary operation isolated in try/catch.
+ */
+async function persistSubmissionIfAuthenticated(user, { problemId, language, status, passed, total, publicPassed, publicTotal, hiddenPassed, hiddenTotal, executionTime, memory }) {
+  if (!user || !user.id) return;
+
+  try {
+    await Submission.create({
+      userId: user.id,
+      problemId,
+      language,
+      status,
+      passed,
+      total,
+      publicPassed,
+      publicTotal,
+      hiddenPassed,
+      hiddenTotal,
+      executionTime: executionTime || '0.000s',
+      memory: memory || undefined
+    });
+
+    const isAccepted = status === 'ACCEPTED';
+    const now = new Date();
+    let progress = await ProblemProgress.findOne({
+      userId: user.id,
+      problemId
+    });
+
+    if (!progress) {
+      progress = new ProblemProgress({
+        userId: user.id,
+        problemId,
+        status: isAccepted ? 'SOLVED' : 'ATTEMPTED',
+        solvedLanguages: isAccepted ? [language] : [],
+        firstAttemptedAt: now,
+        lastAttemptedAt: now,
+        solvedAt: isAccepted ? now : null
+      });
+      await progress.save();
+    } else {
+      progress.lastAttemptedAt = now;
+      if (isAccepted) {
+        progress.status = 'SOLVED';
+        if (!progress.solvedAt) progress.solvedAt = now;
+        if (!progress.solvedLanguages.includes(language)) {
+          progress.solvedLanguages.push(language);
+        }
+      } else if (progress.status !== 'SOLVED') {
+        progress.status = 'ATTEMPTED';
+      }
+      await progress.save();
+    }
+  } catch (err) {
+    // Secondary operation failure: log error but NEVER disrupt the judge response
+    console.error('Error in secondary submission persistence:', err);
+  }
+}
+
+/**
  * POST /api/submit
  * Executes user source code against ALL 15 test cases (3 public + 12 hidden).
  * Evaluates all cases sequentially (only short-circuiting on compilation error)
  * and returns per-test results (with strict privacy for hidden cases).
+ * Supports optionalAuth: persists Submission & updates ProblemProgress if authenticated.
  */
-router.post('/submit', async (req, res) => {
+router.post('/submit', optionalAuth, async (req, res) => {
   const validated = validateRunRequest(req, res);
   if (!validated) return;
 
@@ -306,6 +370,19 @@ router.post('/submit', async (req, res) => {
 
       // Short-circuit ONLY on compilation error
       if (execResult.statusId === 6 || (execResult.compileOutput && !execResult.stdout && execResult.statusId !== 3)) {
+        await persistSubmissionIfAuthenticated(req.user, {
+          problemId: problem.id,
+          language,
+          status: 'COMPILATION_ERROR',
+          passed: 0,
+          total: publicExamples.length + hiddenCases.length,
+          publicPassed: 0,
+          publicTotal: publicExamples.length,
+          hiddenPassed: 0,
+          hiddenTotal: hiddenCases.length,
+          executionTime: '0.000s'
+        });
+
         return res.json({
           success: false,
           status: 'COMPILATION_ERROR',
@@ -363,6 +440,19 @@ router.post('/submit', async (req, res) => {
 
       // Short-circuit ONLY on compilation error
       if (execResult.statusId === 6 || (execResult.compileOutput && !execResult.stdout && execResult.statusId !== 3)) {
+        await persistSubmissionIfAuthenticated(req.user, {
+          problemId: problem.id,
+          language,
+          status: 'COMPILATION_ERROR',
+          passed: publicPassed,
+          total: publicExamples.length + hiddenCases.length,
+          publicPassed,
+          publicTotal: publicExamples.length,
+          hiddenPassed: 0,
+          hiddenTotal: hiddenCases.length,
+          executionTime: `${totalTime.toFixed(3)}s`
+        });
+
         return res.json({
           success: false,
           status: 'COMPILATION_ERROR',
@@ -421,6 +511,24 @@ router.post('/submit', async (req, res) => {
       }
     }
 
+    const executionTimeStr = `${totalTime.toFixed(3)}s`;
+    const memoryStr = maxMemoryKb > 0 ? `${maxMemoryKb} KB` : undefined;
+
+    // Persist submission & update user progress if user is authenticated
+    await persistSubmissionIfAuthenticated(req.user, {
+      problemId: problem.id,
+      language,
+      status: overallStatus,
+      passed: totalPassed,
+      total: totalCount,
+      publicPassed,
+      publicTotal: publicExamples.length,
+      hiddenPassed,
+      hiddenTotal: hiddenCases.length,
+      executionTime: executionTimeStr,
+      memory: memoryStr
+    });
+
     return res.json({
       success: isAccepted,
       status: overallStatus,
@@ -433,8 +541,8 @@ router.post('/submit', async (req, res) => {
         hiddenTotal: hiddenCases.length // 12
       },
       execution: {
-        time: `${totalTime.toFixed(3)}s`,
-        memory: maxMemoryKb > 0 ? `${maxMemoryKb} KB` : undefined
+        time: executionTimeStr,
+        memory: memoryStr
       },
       testCases: testCaseResults
     });
