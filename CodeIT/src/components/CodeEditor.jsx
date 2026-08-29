@@ -251,7 +251,7 @@ export default function CodeEditor({ problem, onCodeChange, currentLanguage, onL
   return (
     <div className="flex flex-col h-full bg-[#161b22] border border-[#21262d] rounded-lg overflow-hidden shadow-xs">
       {/* Editor Header Toolbar */}
-      <div className="flex items-center justify-between px-3 py-2 bg-[#12161c] border-b border-[#21262d]">
+      <div className="flex items-center justify-between px-3 py-2 bg-[#12161c] border-b border-[#21262d] shrink-0">
         {/* Left: Language selector & Save Status Indicator */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
@@ -329,7 +329,7 @@ export default function CodeEditor({ problem, onCodeChange, currentLanguage, onL
       </div>
 
       {/* Monaco Editor Container */}
-      <div className="flex-1 w-full min-h-[300px] relative bg-[#1e1e1e]">
+      <div className="flex-1 w-full min-h-0 relative bg-[#1e1e1e]">
         <Editor
           height="100%"
           language={LANGUAGE_CONFIG[lang]?.monacoLang || 'python'}

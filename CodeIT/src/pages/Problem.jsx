@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ChevronLeft, ChevronRight, AlertTriangle, GripVertical } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, AlertTriangle, GripVertical, GripHorizontal } from 'lucide-react';
 import { getProblemById, getAllProblems, getPracticeHiddenTests } from '../utils/problemLoader';
 import ProblemDescription from '../components/ProblemDescription';
 import CodeEditor from '../components/CodeEditor';
@@ -29,6 +29,24 @@ export default function Problem() {
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef(null);
 
+  // Draggable vertical split state (Code Editor vs Test Cases Panel, Default: 58% Editor, 42% Panel)
+  const [verticalSplitRatio, setVerticalSplitRatio] = useState(() => {
+    try {
+      const saved = localStorage.getItem('codeit_vertical_split_ratio');
+      if (saved) {
+        const parsed = parseFloat(saved);
+        if (!isNaN(parsed) && parsed >= 0.15 && parsed <= 0.95) {
+          return parsed;
+        }
+      }
+    } catch {
+      // Fallback if localStorage is disabled/unavailable
+    }
+    return 0.58;
+  });
+  const [isVerticalDragging, setIsVerticalDragging] = useState(false);
+  const rightColRef = useRef(null);
+
   // Load public problem and all problems for prev/next navigation
   const allProblems = useMemo(() => getAllProblems(), []);
   const problem = useMemo(() => getProblemById(id), [id]);
@@ -40,7 +58,7 @@ export default function Problem() {
   const prevProblem = currentIndex > 0 ? allProblems[currentIndex - 1] : null;
   const nextProblem = currentIndex >= 0 && currentIndex < allProblems.length - 1 ? allProblems[currentIndex + 1] : null;
 
-  // Draggable split handler
+  // Draggable horizontal split handler (Problem Description vs Right Workspace)
   useEffect(() => {
     const handlePointerMove = (e) => {
       if (!isDragging || !containerRef.current) return;
@@ -58,7 +76,7 @@ export default function Problem() {
       window.addEventListener('pointerup', handlePointerUp);
       document.body.style.userSelect = 'none';
       document.body.style.cursor = 'col-resize';
-    } else {
+    } else if (!isVerticalDragging) {
       document.body.style.userSelect = '';
       document.body.style.cursor = '';
     }
@@ -66,10 +84,63 @@ export default function Problem() {
     return () => {
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerup', handlePointerUp);
+      if (!isVerticalDragging) {
+        document.body.style.userSelect = '';
+        document.body.style.cursor = '';
+      }
+    };
+  }, [isDragging, isVerticalDragging]);
+
+  // Draggable vertical split handler (Code Editor vs Test Cases Panel)
+  useEffect(() => {
+    const handleVerticalPointerMove = (e) => {
+      if (!isVerticalDragging || !rightColRef.current) return;
+      const rect = rightColRef.current.getBoundingClientRect();
+      if (rect.height <= 0) return;
+
+      // Sensible constraints:
+      // minBottomHeightPx: ~46px (header tabs & Run/Submit buttons remain fully accessible)
+      // minEditorHeightPx: ~120px (editor toolbar + code lines remain accessible when panel is maximized)
+      const minBottomHeightPx = 46;
+      const minEditorHeightPx = 120;
+
+      const minRatio = Math.min(minEditorHeightPx / rect.height, 0.5);
+      const maxRatio = Math.max((rect.height - minBottomHeightPx) / rect.height, minRatio);
+
+      const rawRatio = (e.clientY - rect.top) / rect.height;
+      const clampedRatio = Math.min(Math.max(rawRatio, minRatio), maxRatio);
+
+      setVerticalSplitRatio(clampedRatio);
+    };
+
+    const handleVerticalPointerUp = () => {
+      setIsVerticalDragging(false);
+      try {
+        localStorage.setItem('codeit_vertical_split_ratio', String(verticalSplitRatio));
+      } catch {
+        // Fallback gracefully
+      }
+    };
+
+    if (isVerticalDragging) {
+      window.addEventListener('pointermove', handleVerticalPointerMove);
+      window.addEventListener('pointerup', handleVerticalPointerUp);
+      document.body.style.userSelect = 'none';
+      document.body.style.cursor = 'row-resize';
+    } else if (!isDragging) {
       document.body.style.userSelect = '';
       document.body.style.cursor = '';
+    }
+
+    return () => {
+      window.removeEventListener('pointermove', handleVerticalPointerMove);
+      window.removeEventListener('pointerup', handleVerticalPointerUp);
+      if (!isDragging) {
+        document.body.style.userSelect = '';
+        document.body.style.cursor = '';
+      }
     };
-  }, [isDragging]);
+  }, [isVerticalDragging, isDragging, verticalSplitRatio]);
 
   // Run Code (Only 3 public examples)
   const handleRunCode = async () => {
@@ -296,10 +367,15 @@ export default function Problem() {
 
         {/* Right Column: Code Editor + Test Case Panel */}
         <div 
-          className="w-full lg:w-[var(--right-width)] flex flex-col gap-3 h-[850px] lg:h-full min-h-0 mt-3 lg:mt-0"
+          ref={rightColRef}
+          style={{
+            '--editor-height': `${verticalSplitRatio * 100}%`,
+            '--test-height': `${(1 - verticalSplitRatio) * 100}%`
+          }}
+          className="w-full lg:w-[var(--right-width)] flex flex-col h-[850px] lg:h-full min-h-0 mt-3 lg:mt-0 overflow-hidden"
         >
           {/* Top: Monaco Editor Workspace */}
-          <div className="flex-[3] min-h-[350px]">
+          <div className="w-full h-[400px] lg:h-[calc(var(--editor-height)-5px)] min-h-0 flex flex-col shrink-0 lg:shrink">
             <CodeEditor
               problem={problem}
               currentLanguage={currentLanguage}
@@ -308,8 +384,26 @@ export default function Problem() {
             />
           </div>
 
+          {/* Draggable Horizontal Divider (Desktop Only) */}
+          <div
+            onPointerDown={(e) => {
+              e.preventDefault();
+              setIsVerticalDragging(true);
+            }}
+            className={`hidden lg:flex items-center justify-center h-2.5 hover:h-2.5 cursor-row-resize select-none shrink-0 transition-colors z-20 group relative my-0.5 ${
+              isVerticalDragging ? 'bg-blue-600/40' : 'hover:bg-blue-500/20 bg-transparent'
+            }`}
+            title="Drag to resize editor & test panel"
+          >
+            <div className={`h-1 w-8 rounded-full flex items-center justify-center transition-colors ${
+              isVerticalDragging ? 'bg-blue-500' : 'bg-[#30363d] group-hover:bg-blue-400'
+            }`}>
+              <GripHorizontal className="w-2.5 h-2.5 text-neutral-400 opacity-60 group-hover:opacity-100" />
+            </div>
+          </div>
+
           {/* Bottom: Test Cases, Run Results, & Submission Panel */}
-          <div className="flex-[2] min-h-[260px]">
+          <div className="w-full h-[450px] lg:h-[calc(var(--test-height)-5px)] min-h-0 flex flex-col shrink-0 lg:shrink">
             <TestResults
               problem={problem}
               practiceHiddenCases={practiceHiddenCases}

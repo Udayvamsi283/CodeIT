@@ -787,7 +787,7 @@ export default function TestResults({
   return (
     <div className="flex flex-col h-full bg-[#161b22] border border-[#21262d] rounded-lg overflow-hidden shadow-xs">
       {/* Header bar with Tabs and Action Buttons */}
-      <div className="flex flex-wrap items-center justify-between px-3 py-2 bg-[#12161c] border-b border-[#21262d] gap-2">
+      <div className="flex flex-wrap items-center justify-between px-3 py-2 bg-[#12161c] border-b border-[#21262d] gap-2 shrink-0">
         {/* Left: Top-level Tab selection */}
         <div className="flex items-center gap-1">
           <button
