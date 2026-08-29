@@ -26,6 +26,13 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
+// Prevent CDN, Vercel Edge, and proxy caching of sensitive/personalized API responses
+app.use('/api', (req, res, next) => {
+  res.setHeader('Cache-Control', 'private, no-store, no-cache, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  next();
+});
+
 app.use('/api', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api', judgeRoutes);
@@ -39,13 +46,14 @@ async function runIntegrationTests() {
 
   try {
     // 1. Health check without DB
-    console.log('Test 1: GET /api/health (safe database status reporting)');
+    console.log('Test 1: GET /api/health (safe database status reporting & Cache-Control header)');
     const healthRes = await fetch(`${baseUrl}/api/health`);
     assert.strictEqual(healthRes.status, 200);
+    assert.strictEqual(healthRes.headers.get('cache-control'), 'private, no-store, no-cache, must-revalidate', 'Cache-Control must prevent caching');
     const healthData = await healthRes.json();
     assert.strictEqual(healthData.status, 'ok');
     assert.strictEqual(typeof healthData.database, 'string');
-    console.log('✅ Test 1 Passed: /api/health returns safe status:', healthData);
+    console.log('✅ Test 1 Passed: /api/health returns safe status with private no-store Cache-Control:', healthData);
 
     // 2. Auth Register Validation: Missing Fields
     console.log('\nTest 2: POST /api/auth/register (validation: missing fields)');

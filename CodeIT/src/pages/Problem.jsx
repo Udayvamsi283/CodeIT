@@ -5,9 +5,7 @@ import { getProblemById, getAllProblems, getPracticeHiddenTests } from '../utils
 import ProblemDescription from '../components/ProblemDescription';
 import CodeEditor from '../components/CodeEditor';
 import TestResults from '../components/TestResults';
-
-const rawApiUrl = import.meta.env.VITE_API_URL || '';
-const API_BASE_URL = rawApiUrl.replace(/\/+$/, '');
+import { API_BASE_URL } from '../config/api';
 
 export default function Problem() {
   const { id } = useParams();

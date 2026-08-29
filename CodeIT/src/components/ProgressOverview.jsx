@@ -1,9 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { CircleDot, AlertCircle, RefreshCw, TrendingUp } from 'lucide-react';
 import { getProblemStats } from '../utils/problemLoader';
-
-const rawApiUrl = import.meta.env.VITE_API_URL || '';
-const API_BASE_URL = rawApiUrl.replace(/\/+$/, '');
+import { API_BASE_URL } from '../config/api';
 
 export default function ProgressOverview() {
   const [stats, setStats] = useState(null);

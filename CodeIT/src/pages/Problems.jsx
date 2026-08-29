@@ -3,9 +3,7 @@ import { Search, Filter, Layers, CheckCircle, Flame, Sparkles, BookOpen, X, Chec
 import { getAllProblems, getAllTopics, getProblemStats } from '../utils/problemLoader';
 import ProblemCard from '../components/ProblemCard';
 import { useAuth } from '../context/AuthContext';
-
-const rawApiUrl = import.meta.env.VITE_API_URL || '';
-const API_BASE_URL = rawApiUrl.replace(/\/+$/, '');
+import { API_BASE_URL } from '../config/api';
 
 export default function Problems() {
   const { isAuthenticated, loading: authLoading } = useAuth();

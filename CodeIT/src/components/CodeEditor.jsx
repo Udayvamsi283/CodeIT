@@ -2,9 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import Editor from '@monaco-editor/react';
 import { RotateCcw, Copy, Check, Code2, Loader2, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-
-const rawApiUrl = import.meta.env.VITE_API_URL || '';
-const API_BASE_URL = rawApiUrl.replace(/\/+$/, '');
+import { API_BASE_URL } from '../config/api';
 
 const LANGUAGE_CONFIG = {
   cpp: {
