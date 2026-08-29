@@ -320,7 +320,9 @@ if __name__ == '__main__':
   }
 }
 
-runPrompt5IntegrationTests().catch((err) => {
+runPrompt5IntegrationTests().then(() => {
+  process.exit(0);
+}).catch((err) => {
   console.error('❌ Integration test failed:', err);
   process.exit(1);
 });

@@ -20,6 +20,12 @@ export default function Problem() {
   const [runResult, setRunResult] = useState(null);
   const [submitResult, setSubmitResult] = useState(null);
 
+  // Custom Test state
+  const [customInput, setCustomInput] = useState('');
+  const [isCustomTesting, setIsCustomTesting] = useState(false);
+  const [customTestResult, setCustomTestResult] = useState(null);
+  const [isCustomTestAvailable, setIsCustomTestAvailable] = useState(null);
+
   // Practice Mode state (Architecture ready for future Test Mode switching)
   const [practiceTestResults, setPracticeTestResults] = useState({});
   const [practiceRunningIndex, setPracticeRunningIndex] = useState(null);
@@ -57,6 +63,40 @@ export default function Problem() {
   const currentIndex = allProblems.findIndex((p) => p.id === id);
   const prevProblem = currentIndex > 0 ? allProblems[currentIndex - 1] : null;
   const nextProblem = currentIndex >= 0 && currentIndex < allProblems.length - 1 ? allProblems[currentIndex + 1] : null;
+
+  // Custom Test Availability check & custom input default initialization
+  useEffect(() => {
+    let isMounted = true;
+    setIsCustomTestAvailable(null);
+    setCustomTestResult(null);
+
+    if (problem?.examples?.[0]?.input) {
+      setCustomInput(problem.examples[0].input);
+    } else {
+      setCustomInput('');
+    }
+
+    async function checkAvailability() {
+      if (!id) return;
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/custom-test/availability/${encodeURIComponent(id)}`);
+        const data = await res.json();
+        if (isMounted) {
+          setIsCustomTestAvailable(Boolean(data?.available));
+        }
+      } catch (err) {
+        console.error('Failed to check custom test availability:', err);
+        if (isMounted) {
+          setIsCustomTestAvailable(false);
+        }
+      }
+    }
+
+    checkAvailability();
+    return () => {
+      isMounted = false;
+    };
+  }, [id, problem]);
 
   // Draggable horizontal split handler (Problem Description vs Right Workspace)
   useEffect(() => {
@@ -254,6 +294,43 @@ export default function Problem() {
     }
   };
 
+  // Custom Test: Run single custom input against user code & trusted Python reference solution
+  const handleRunCustomTest = async (inputToRun) => {
+    if (!problem || isRunning || isSubmitting || isCustomTesting) return;
+
+    const sourceCodeToRun = currentCode || problem.starterCode?.[currentLanguage] || '';
+    const stdinToRun = inputToRun !== undefined ? inputToRun : customInput;
+    setIsCustomTesting(true);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/custom-test`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          problemId: problem.id,
+          language: currentLanguage,
+          sourceCode: sourceCodeToRun,
+          input: stdinToRun,
+        }),
+      });
+
+      const data = await response.json();
+      setCustomTestResult(data);
+    } catch (err) {
+      console.error('Custom test request failed:', err);
+      setCustomTestResult({
+        success: false,
+        status: 'JUDGE_UNAVAILABLE',
+        error: 'Could not connect to backend server. Please verify backend service availability or network connection.'
+      });
+    } finally {
+      setIsCustomTesting(false);
+    }
+  };
+
   if (!problem) {
     return (
       <div className="min-h-[calc(100vh-3.5rem)] flex flex-col items-center justify-center p-6 text-center bg-[#0d1117]">
@@ -304,6 +381,7 @@ export default function Problem() {
               setRunResult(null);
               setSubmitResult(null);
               setPracticeTestResults({});
+              setCustomTestResult(null);
               prevProblem && navigate(`/problem/${prevProblem.id}`);
             }}
             disabled={!prevProblem}
@@ -319,6 +397,7 @@ export default function Problem() {
               setRunResult(null);
               setSubmitResult(null);
               setPracticeTestResults({});
+              setCustomTestResult(null);
               nextProblem && navigate(`/problem/${nextProblem.id}`);
             }}
             disabled={!nextProblem}
@@ -409,13 +488,19 @@ export default function Problem() {
               practiceHiddenCases={practiceHiddenCases}
               isRunning={isRunning}
               isSubmitting={isSubmitting}
+              isCustomTesting={isCustomTesting}
               practiceRunningIndex={practiceRunningIndex}
               runResult={runResult}
               submitResult={submitResult}
               practiceTestResults={practiceTestResults}
+              customTestResult={customTestResult}
+              isCustomTestAvailable={isCustomTestAvailable}
+              customInput={customInput}
+              onCustomInputChange={setCustomInput}
               onRunCode={handleRunCode}
               onSubmitCode={handleSubmitCode}
               onRunPracticeTest={handleRunPracticeTest}
+              onRunCustomTest={handleRunCustomTest}
             />
           </div>
         </div>

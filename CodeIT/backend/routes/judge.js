@@ -1,5 +1,6 @@
 import express from 'express';
 import { getProblemById, validateProblemStructure } from '../utils/problemLoader.js';
+import { hasReferenceSolution, getReferenceSolution } from '../utils/solutionLoader.js';
 import { compareOutputs } from '../utils/outputNormalizer.js';
 import { executeSubmission, sanitizeMessage } from '../services/judge0.js';
 import { optionalAuth } from '../middleware/auth.js';
@@ -560,6 +561,221 @@ router.post('/submit', optionalAuth, async (req, res) => {
       success: false,
       status: 'INTERNAL_ERROR',
       message: 'An internal error occurred during submission evaluation.'
+    });
+  }
+});
+
+/**
+ * GET /api/custom-test/availability/:problemId
+ * Checks whether a trusted Python reference solution exists on the backend for a given problem.
+ */
+router.get('/custom-test/availability/:problemId', (req, res) => {
+  const { problemId } = req.params;
+
+  if (!problemId || typeof problemId !== 'string') {
+    return res.status(400).json({
+      success: false,
+      available: false,
+      error: 'Missing or invalid problemId parameter.'
+    });
+  }
+
+  const problem = getProblemById(problemId);
+  if (!problem) {
+    return res.status(404).json({
+      success: false,
+      available: false,
+      error: `Problem with ID "${problemId}" was not found.`
+    });
+  }
+
+  const available = hasReferenceSolution(problem.id);
+
+  return res.json({
+    success: true,
+    available
+  });
+});
+
+/**
+ * POST /api/custom-test
+ * Custom Test Case Execution Endpoint.
+ * Executes student source code against exactly ONE custom input.
+ * Expected output is generated strictly via trusted server-side Python reference solution.
+ * 
+ * Invariants:
+ * 1. Checks reference availability BEFORE student code execution.
+ * 2. If reference is missing or execution fails, student code is NEVER executed.
+ * 3. Never persists Submission or ProblemProgress records.
+ * 4. Never exposes reference source code, stderr, internal paths, or stack traces.
+ */
+router.post('/custom-test', async (req, res) => {
+  const { problemId, language, sourceCode, input } = req.body || {};
+
+  // 1. Validation: problemId
+  if (!problemId || typeof problemId !== 'string') {
+    return res.status(400).json({
+      success: false,
+      error: 'Missing or invalid problemId parameter.'
+    });
+  }
+
+  // 2. Validation: language
+  const normalizedLang = String(language || '').toLowerCase().trim();
+  if (!normalizedLang || !SUPPORTED_LANGUAGES.includes(normalizedLang)) {
+    return res.status(400).json({
+      success: false,
+      error: `Unsupported language "${language}". Supported languages are: ${SUPPORTED_LANGUAGES.join(', ')}.`
+    });
+  }
+
+  // 3. Validation: sourceCode
+  if (!sourceCode || typeof sourceCode !== 'string' || !sourceCode.trim()) {
+    return res.status(400).json({
+      success: false,
+      error: 'Source code cannot be empty.'
+    });
+  }
+
+  if (Buffer.byteLength(sourceCode, 'utf8') > MAX_SOURCE_CODE_BYTES) {
+    return res.status(400).json({
+      success: false,
+      error: `Source code exceeds maximum allowed limit of ${MAX_SOURCE_CODE_BYTES / 1024} KB.`
+    });
+  }
+
+  // 4. Validation: custom input
+  if (input !== undefined && input !== null && typeof input !== 'string') {
+    return res.status(400).json({
+      success: false,
+      error: 'Custom input must be a string.'
+    });
+  }
+
+  const customInput = input || '';
+  const MAX_INPUT_BYTES = 64 * 1024; // 64 KB limit
+  if (Buffer.byteLength(customInput, 'utf8') > MAX_INPUT_BYTES) {
+    return res.status(400).json({
+      success: false,
+      error: `Custom input exceeds maximum allowed limit of ${MAX_INPUT_BYTES / 1024} KB.`
+    });
+  }
+
+  // 5. Retrieve problem data
+  const problem = getProblemById(problemId);
+  if (!problem) {
+    return res.status(404).json({
+      success: false,
+      error: `Problem with ID "${problemId}" was not found.`
+    });
+  }
+
+  // 6. Mandatory Check: Verify trusted Python reference solution availability BEFORE executing user code
+  const isAvailable = hasReferenceSolution(problem.id);
+  if (!isAvailable) {
+    return res.status(400).json({
+      success: false,
+      status: 'CUSTOM_TEST_UNAVAILABLE',
+      error: 'Custom test is not available for this problem yet.'
+    });
+  }
+
+  const referenceCode = getReferenceSolution(problem.id);
+  if (!referenceCode || !referenceCode.trim()) {
+    return res.status(500).json({
+      success: false,
+      status: 'REFERENCE_EXECUTION_ERROR',
+      error: 'Unable to generate expected output for this custom test.'
+    });
+  }
+
+  try {
+    // 7. Execute Trusted Python Reference Solution on Judge0 FIRST
+    let refResult;
+    try {
+      refResult = await executeSubmission({
+        sourceCode: referenceCode,
+        language: 'python',
+        stdin: customInput
+      });
+    } catch (err) {
+      if (err.isJudgeUnavailable) {
+        return res.status(503).json({
+          success: false,
+          status: 'JUDGE_UNAVAILABLE',
+          message: err.message || 'Code execution service is currently unavailable.'
+        });
+      }
+      return res.status(500).json({
+        success: false,
+        status: 'REFERENCE_EXECUTION_ERROR',
+        error: 'Unable to generate expected output for this custom test.'
+      });
+    }
+
+    // If reference solution failed to execute cleanly (statusId !== 3), do NOT execute user code
+    if (refResult.statusId !== 3) {
+      return res.status(422).json({
+        success: false,
+        status: 'REFERENCE_EXECUTION_ERROR',
+        error: 'Unable to generate expected output for this custom test.'
+      });
+    }
+
+    const expectedOutput = (refResult.stdout || '').trim();
+
+    // 8. Execute Student's Submitted Solution on Judge0
+    const userResult = await executeSubmission({
+      sourceCode,
+      language: normalizedLang,
+      stdin: customInput
+    });
+
+    // Check for Compilation Error
+    if (userResult.statusId === 6 || (userResult.compileOutput && !userResult.stdout && userResult.statusId !== 3)) {
+      return res.json({
+        success: false,
+        status: 'COMPILATION_ERROR',
+        message: 'Compilation Error',
+        compileOutput: sanitizeMessage(userResult.compileOutput || userResult.stderr || 'Compilation failed.')
+      });
+    }
+
+    let caseStatus = 'UNKNOWN';
+    if (userResult.statusId === 5) {
+      caseStatus = 'TIME_LIMIT_EXCEEDED';
+    } else if (userResult.statusId >= 7 && userResult.statusId <= 12) {
+      caseStatus = 'RUNTIME_ERROR';
+    } else if (userResult.statusId === 4) {
+      caseStatus = 'WRONG_ANSWER';
+    } else {
+      const isMatch = compareOutputs(userResult.stdout, expectedOutput);
+      caseStatus = isMatch ? 'PASSED' : 'WRONG_ANSWER';
+    }
+
+    return res.json({
+      success: caseStatus === 'PASSED',
+      status: caseStatus,
+      input: customInput,
+      expectedOutput,
+      actualOutput: (userResult.stdout || userResult.stderr || '').trim(),
+      executionTime: userResult.time || '0.00s',
+      memory: userResult.memory || null
+    });
+  } catch (err) {
+    if (err.isJudgeUnavailable) {
+      return res.status(503).json({
+        success: false,
+        status: 'JUDGE_UNAVAILABLE',
+        message: err.message || 'Code execution service is currently unavailable.'
+      });
+    }
+
+    console.error('Custom test execution error:', err);
+    return res.status(500).json({
+      success: false,
+      status: 'INTERNAL_ERROR',
+      message: 'An internal error occurred during custom test evaluation.'
     });
   }
 });

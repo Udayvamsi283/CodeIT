@@ -13,7 +13,8 @@ import {
   Cpu,
   ShieldCheck,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  HelpCircle
 } from 'lucide-react';
 
 export default function TestResults({ 
@@ -21,13 +22,19 @@ export default function TestResults({
   practiceHiddenCases = [],
   isRunning = false,
   isSubmitting = false,
+  isCustomTesting = false,
   practiceRunningIndex = null,
   runResult = null, 
   submitResult = null,
   practiceTestResults = {},
+  customTestResult = null,
+  isCustomTestAvailable = null,
+  customInput = '',
+  onCustomInputChange,
   onRunCode,
   onSubmitCode,
-  onRunPracticeTest
+  onRunPracticeTest,
+  onRunCustomTest
 }) {
   const [activeTab, setActiveTab] = useState('cases'); // 'cases' | 'result' | 'submission'
   const [selectedTestCategory, setSelectedTestCategory] = useState('public'); // 'public' | 'hidden'
@@ -106,7 +113,7 @@ export default function TestResults({
   const hiddenTestCaseIndex = selectedHiddenCase + 4; // Backend testCaseIndex: 4 to 15
   const currentHiddenResult = practiceTestResults[hiddenTestCaseIndex];
   const isRunningCurrentHidden = practiceRunningIndex === hiddenTestCaseIndex;
-  const isBusy = isRunning || isSubmitting;
+  const isBusy = isRunning || isSubmitting || isCustomTesting;
 
   // Render Run Code Results (Public 3 Cases with Expected vs Actual Output)
   const renderRunResultContent = () => {
@@ -867,7 +874,7 @@ export default function TestResults({
       <div className="flex-1 p-3.5 overflow-y-auto space-y-4">
         {activeTab === 'cases' ? (
           <div className="space-y-4">
-            {/* Top Sub-tabs: [ Public (3) ] vs [ Hidden (12) ] */}
+            {/* Top Sub-tabs: [ Public (3) ] vs [ Hidden (12) ] vs [ Custom Test ] */}
             <div className="flex items-center gap-1 p-0.5 bg-[#0d1117] border border-[#21262d] rounded-lg w-fit">
               <button
                 onClick={() => setSelectedTestCategory('public')}
@@ -888,6 +895,24 @@ export default function TestResults({
                 }`}
               >
                 Hidden ({practiceHiddenCases.length})
+              </button>
+              <button
+                onClick={() => setSelectedTestCategory('custom')}
+                className={`px-3 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer flex items-center gap-1.5 ${
+                  selectedTestCategory === 'custom'
+                    ? 'bg-[#21262d] text-white shadow-xs border border-[#38424d]'
+                    : 'text-neutral-400 hover:text-neutral-200'
+                }`}
+              >
+                <span>Custom Test</span>
+                {isCustomTestAvailable === true && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" title="Custom Test Available" />
+                )}
+                {customTestResult && (
+                  <span className={`w-1.5 h-1.5 rounded-full ${
+                    customTestResult.status === 'PASSED' ? 'bg-emerald-400' : 'bg-rose-400'
+                  }`} />
+                )}
               </button>
             </div>
 
@@ -1059,6 +1084,174 @@ export default function TestResults({
                   </>
                 ) : (
                   <p className="text-xs text-neutral-500 py-2">No hidden test cases available.</p>
+                )}
+              </div>
+            )}
+
+            {/* Sub-tab 3: CUSTOM TEST CASE */}
+            {selectedTestCategory === 'custom' && (
+              <div className="space-y-3.5">
+                {/* Unavailable State */}
+                {isCustomTestAvailable === false ? (
+                  <div className="p-6 rounded-lg bg-[#0d1117] border border-[#21262d] text-center space-y-3">
+                    <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 mx-auto">
+                      <HelpCircle className="w-5 h-5" />
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="text-sm font-semibold text-neutral-200">Custom Testing Unavailable</h4>
+                      <p className="text-xs text-neutral-400 max-w-md mx-auto leading-relaxed">
+                        Custom testing is not available for this problem yet.
+                      </p>
+                      <p className="text-[11px] text-neutral-500 max-w-sm mx-auto leading-relaxed">
+                        A trusted reference solution is required to generate expected output.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-3.5">
+                    {/* Custom Input Block */}
+                    <div className="p-3.5 rounded-lg bg-[#0d1117] border border-[#21262d] space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <label htmlFor="custom-test-input" className="text-xs font-semibold text-neutral-200">
+                          Custom Input
+                        </label>
+                        <span className="text-[11px] text-neutral-500 font-mono">
+                          {customInput.length} chars
+                        </span>
+                      </div>
+                      
+                      <textarea
+                        id="custom-test-input"
+                        value={customInput}
+                        onChange={(e) => onCustomInputChange && onCustomInputChange(e.target.value)}
+                        placeholder="Enter custom input according to problem specification..."
+                        rows={4}
+                        spellCheck={false}
+                        className="w-full p-2.5 rounded bg-[#161b22] border border-[#21262d] text-xs font-mono text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-blue-500 transition-colors resize-y min-h-[80px]"
+                      />
+
+                      {/* Run Custom Test Action */}
+                      <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                        <span className="text-[11px] text-neutral-400">
+                          Runs this test case against your code & server reference.
+                        </span>
+                        <button
+                          onClick={() => onRunCustomTest && onRunCustomTest(customInput)}
+                          disabled={isBusy || isCustomTesting}
+                          className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors cursor-pointer shadow-xs"
+                        >
+                          <Play className={`w-3 h-3 fill-current ${isCustomTesting ? 'animate-spin' : ''}`} />
+                          <span>{isCustomTesting ? 'Running Custom Test...' : 'Run Custom Test'}</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Custom Test Result Display */}
+                    {customTestResult && (
+                      <div className="p-3.5 rounded-lg bg-[#0d1117] border border-[#21262d] space-y-3 transition-colors">
+                        {/* Result Header & Status Badge */}
+                        <div className="flex items-center justify-between pb-2.5 border-b border-[#21262d]">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-semibold text-neutral-300">Custom Test Result:</span>
+                            {customTestResult.status === 'PASSED' ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                PASSED
+                              </span>
+                            ) : customTestResult.status === 'WRONG_ANSWER' ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                                <XCircle className="w-3.5 h-3.5" />
+                                WRONG ANSWER
+                              </span>
+                            ) : customTestResult.status === 'COMPILATION_ERROR' ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                                <AlertOctagon className="w-3.5 h-3.5" />
+                                COMPILATION ERROR
+                              </span>
+                            ) : customTestResult.status === 'TIME_LIMIT_EXCEEDED' ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                                <Clock className="w-3.5 h-3.5" />
+                                TIME LIMIT EXCEEDED
+                              </span>
+                            ) : customTestResult.status === 'RUNTIME_ERROR' ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                                <AlertTriangle className="w-3.5 h-3.5" />
+                                RUNTIME ERROR
+                              </span>
+                            ) : customTestResult.status === 'CUSTOM_TEST_UNAVAILABLE' ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                                <HelpCircle className="w-3.5 h-3.5" />
+                                UNAVAILABLE
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                                <AlertTriangle className="w-3.5 h-3.5" />
+                                {customTestResult.status || 'ERROR'}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Execution metrics */}
+                          <div className="flex items-center gap-3 text-[11px] font-mono text-neutral-400">
+                            {customTestResult.executionTime && (
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3 h-3 text-neutral-500" />
+                                {customTestResult.executionTime}
+                              </span>
+                            )}
+                            {customTestResult.memory && (
+                              <span className="hidden sm:inline-flex items-center gap-1 text-neutral-500">
+                                <Cpu className="w-3 h-3" />
+                                {customTestResult.memory}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* If Compilation Error */}
+                        {customTestResult.status === 'COMPILATION_ERROR' && (
+                          <div className="space-y-1.5">
+                            <div className="text-[11px] font-mono text-neutral-400 font-medium">Compiler Message:</div>
+                            <pre className="p-3 bg-[#0d1117] border border-rose-500/30 rounded-lg text-xs font-mono text-rose-300/90 whitespace-pre-wrap overflow-x-auto max-h-48">
+                              {customTestResult.compileOutput || 'Compilation failed.'}
+                            </pre>
+                          </div>
+                        )}
+
+                        {/* If Reference or Server Error */}
+                        {(customTestResult.status === 'REFERENCE_EXECUTION_ERROR' || customTestResult.status === 'JUDGE_UNAVAILABLE' || customTestResult.status === 'CUSTOM_TEST_UNAVAILABLE') && (
+                          <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300/90 leading-relaxed">
+                            {customTestResult.error || customTestResult.message || 'Unable to evaluate custom test.'}
+                          </div>
+                        )}
+
+                        {/* Normal Output Comparison (Passed, Wrong Answer, Runtime Error, Time Limit) */}
+                        {customTestResult.expectedOutput !== undefined && (
+                          <div className="space-y-2.5">
+                            {/* Expected Output */}
+                            <div className="space-y-1">
+                              <div className="text-[11px] font-mono text-neutral-400 font-medium">Expected Output:</div>
+                              <pre className="p-2.5 rounded bg-[#161b22] border border-emerald-500/30 text-xs font-mono text-emerald-400/90 overflow-x-auto whitespace-pre-wrap max-h-36">
+                                {customTestResult.expectedOutput || '(empty output)'}
+                              </pre>
+                            </div>
+
+                            {/* Your Output */}
+                            <div className="space-y-1">
+                              <div className="text-[11px] font-mono text-neutral-400 font-medium">Your Output:</div>
+                              <pre className={`p-2.5 rounded bg-[#161b22] border text-xs font-mono overflow-x-auto whitespace-pre-wrap max-h-36 ${
+                                customTestResult.status === 'PASSED'
+                                  ? 'border-[#21262d] text-neutral-200'
+                                  : 'border-rose-500/30 text-rose-300'
+                              }`}>
+                                {customTestResult.actualOutput || (customTestResult.status === 'PASSED' ? '(matching output)' : '(no output produced)')}
+                              </pre>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             )}
